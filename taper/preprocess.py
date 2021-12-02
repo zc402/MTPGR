@@ -19,14 +19,14 @@ from pathlib import Path
 from multi_person_tracker import MPT
 from torch.utils.data import DataLoader
 
-from vibe.lib.models.vibe import VIBE_Demo
-from vibe.lib.utils.renderer import Renderer
-from vibe.lib.dataset.inference import Inference
-from vibe.lib.utils.smooth_pose import smooth_pose
-from vibe.lib.data_utils.kp_utils import convert_kps
-from vibe.lib.utils.pose_tracker import run_posetracker
+from vibe.models.vibe import VIBE_Demo
+from vibe.utils.renderer import Renderer
+from vibe.dataset.inference import Inference
+from vibe.utils.smooth_pose import smooth_pose
+from vibe.data_utils.kp_utils import convert_kps
+from vibe.utils.pose_tracker import run_posetracker
 
-from vibe.lib.utils.demo_utils import (
+from vibe.utils.demo_utils import (
     download_youtube_clip,
     smplify_runner,
     convert_crop_coords_to_orig_img,
@@ -74,7 +74,7 @@ class Video2Smpl:
         # Run tracker
         mot = MPT(
             device=self.device,
-            batch_size=12,
+            batch_size=2,  # original: 12
             display=self.display_trace,
             detector_type='yolo',
             output_format='dict',
@@ -99,11 +99,11 @@ class Video2Smpl:
     def _trace2smpl(self, image_folder, image_shape, tracking_results, output_folder):
 
         tracking_method = 'bbox'
-        vibe_batch_size = 200
+        vibe_batch_size = 1  # original: 200
 
         # ========= Define VIBE model ========= #
         model = VIBE_Demo(
-            seqlen=16,
+            seqlen=16,  # original: 16
             n_layers=2,
             hidden_size=1024,
             add_linear=True,
