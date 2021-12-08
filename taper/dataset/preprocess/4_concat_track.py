@@ -7,9 +7,10 @@ import logging
 
 import numpy as np
 
-import dataset_preprocess.path as data_path
-log = logging.getLogger(__name__)
-logging.root.setLevel(logging.ERROR)
+import taper.dataset.path as data_path
+log = logging.getLogger('check_track')
+log.setLevel(logging.INFO)
+# logging.root.setLevel(logging.INFO)
 
 
 def load_tracking_results(track_file: Path) -> list:
@@ -67,15 +68,11 @@ def concat_long_tracks(track_file: Path):
     save_path = track_file.with_suffix('.track_correct')
     with save_path.open('wb') as f:
         pickle.dump(new_dict, f)
+    print(str(save_path) + ' saved.')
 
-    lost = list(range(9000))
-    [lost.remove(x) for x in new_frames.tolist()]
 
-    log.info(f'{track_file.name} no detection:' + str(lost))
-
-    pass
-
-concat_long_tracks(Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0227.track'))
+for track in data_path.tracks:
+    concat_long_tracks(track)
 # non_maximum_suppression_1d(Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0227.track'))
 
 # for track in data_path.tracks:
