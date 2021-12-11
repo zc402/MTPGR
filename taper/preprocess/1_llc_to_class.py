@@ -44,7 +44,7 @@ def llc_to_class(video: Path, label: Path, output: Path, show: bool = True):
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
-    #
+    (Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR).mkdir(exist_ok=True)
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
     videos = videos.glob('*.mp4')
     for video in videos:
