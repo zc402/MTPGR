@@ -6,12 +6,12 @@ from tqdm import tqdm
 from taper.config import get_cfg_defaults
 
 
-def llc_to_class(video: Path, label: Path, output: Path, show: bool = True):
+def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
     """
     Convert losslesscut .llc format (json5) to class-per-frame format (json5)
     :param video: path of a videos, used to get FRAME_COUNT
     :param label: path of .llc file corresponding to the video.
-    :param output: path of output json5 per-frame label file
+    :param save_path: path of output json5 per-frame label file
     :param show: display labels as a plot
     :return:
     """
@@ -36,7 +36,7 @@ def llc_to_class(video: Path, label: Path, output: Path, show: bool = True):
         plt.plot(cls_list)
         plt.show()
 
-    with output.open('w') as f:
+    with save_path.open('w') as f:
         json5.dump(cls_list, f)
     pass
 

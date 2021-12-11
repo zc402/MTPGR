@@ -2,6 +2,8 @@ import pickle
 from pathlib import Path
 from vibe.rt import RtVibe
 import cv2
+
+from taper.config import get_cfg_defaults
 from taper.dataset.path import train_videos
 import torch
 import numpy as np
@@ -27,7 +29,9 @@ class VibeInputTrack(RtVibe):
         return track_res
 
 
-def tracking_to_vibe(image_folder: Path, track_file: Path):
+def tracking_to_vibe(image_folder: Path,
+                     track_file: Path,
+                     save_path: Path):
 
     assert image_folder.is_dir()
     assert track_file.is_file()
@@ -54,16 +58,25 @@ def tracking_to_vibe(image_folder: Path, track_file: Path):
         v_res = vibe(image, single_track_res)
         del v_res[1]['verts']  # Too large and no usage as dataset label.
         vibe_results.append(v_res)
-    save_path = track_file.parent / (track_file.stem + '.vibe')
+    # save_path = track_file.parent / (track_file.stem + '.vibe')
     with save_path.open('wb') as f:
         pickle.dump(vibe_results, f)
     pass
 
 
-for video in train_videos:
-    image = video.with_suffix('.images')
-    track_correct = video.with_suffix('.track_correct')
-    tracking_to_vibe(image, track_correct)
+if __name__ == '__main__':
+    cfg = get_cfg_defaults()
+    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
+    tracks = track_folder.glob('*')
+    img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
+    tk_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
+    tk_crct_folder.mkdir(exist_ok=True)
+    for track in tracks:
+        img_folder = img_root / track.stem
+        save_path = tk_crct_folder / (track.stem + '.npy')
+        tracking_to_vibe(img_folder, track, save_path)
+
 
 # tracking_to_vibe(Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0217.images'),
 #                  Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0217.track_correct'))

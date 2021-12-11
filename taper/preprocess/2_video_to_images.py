@@ -18,7 +18,7 @@ def video2images(video: Path, img_folder: Path):
         if not ret:
             break
         img_path = img_folder / str(frame_num).zfill(6)
-        img_path = img_path.with_suffix(".jpg")  # 000005.jpg
+        img_path = img_path.with_suffix(".jpg")  # 000000.jpg
         cv2.imwrite(str(img_path), frame)
         assert img_path.is_file()  # when failed, cv2.imwrite do not raise exception.
         frame_num = frame_num + 1
