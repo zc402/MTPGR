@@ -2,7 +2,7 @@ import pickle
 from pathlib import Path
 from vibe.rt import RtVibe
 import cv2
-from taper.dataset.path import videos
+from taper.dataset.path import train_videos
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -60,7 +60,7 @@ def tracking_to_vibe(image_folder: Path, track_file: Path):
     pass
 
 
-for video in videos:
+for video in train_videos:
     image = video.with_suffix('.images')
     track_correct = video.with_suffix('.track_correct')
     tracking_to_vibe(image, track_correct)

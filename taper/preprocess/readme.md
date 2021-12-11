@@ -28,27 +28,26 @@ Suffix: **.llc**
 
 4. Run `1_` to convert to per-frame class label with `opencv-python`. 
 
-Suffix: **.json5**
 ```json5
 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,]
+// suffix: .json5
 ```
 
 5. Run `2_` to split video frames to individual images in a folder named `<videoname>.images`
 
-Suffix: **.images**
 
-7. Run `3_` to generate ground-truth tracking results for police with `multi-person-tracker`.
+6. Run `3_` to generate ground-truth tracking results for police with `multi-person-tracker`.
 
-Suffix: **.track**
 ```json5
 {5: {'bbox': ndarray, 'frames':  ndarray}, 6: {...}}
+// suffix: .pkl
 ```
 7. Tracker can not recover from occlusion, which results in multiple tracks for same person. Run `4_` to concat the tracks for police with non-maximum suppression. 
 
-Suffix: **.track_correct**
+
 ```json5
 {1: {'bbox': ndarray, 'frames':  ndarray}}  
-// 
+// suffix: .pkl
 ```
 number 1 is the person_id of police. other tracks are deleted.
 8. Run `5_` to convert tracks to vibe. 
