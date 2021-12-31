@@ -5,7 +5,7 @@ from pathlib import Path
 from taper.dataset.path import to_vibe_params, to_gesture_label, train_videos
 import json5
 import pickle
-from taper.kinematic.parts import part_indices
+from taper.kinematic.sparse_to_dense import part_indices
 import numpy as np
 from tqdm import tqdm
 

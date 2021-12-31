@@ -1,3 +1,1 @@
-from .edge import edges
-from .height import heights
-from .parts import part_indices, p2pat
+from .sparse_to_dense import dense_indices, edges_dense, heights_dense

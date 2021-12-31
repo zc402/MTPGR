@@ -1,19 +1,16 @@
 import torch
 
-from taper.stgcn.layers.st_layer import STLayer
 from torch import nn
-import torch.nn.functional as F
-from taper.stgcn.adjacency_matrix import AdjacencyMatrix
-from .stgcn_bone_network import StgcnBoneNetwork
+from .bone_network import BoneNetwork
 
-class StgcnFc(nn.Module):
+class SpatialMean(nn.Module):
     """ STGCN, output num_class scores"""
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        self.bone = StgcnBoneNetwork(in_channels)
+        # self.bone = BoneNetwork(in_channels)
 
-        self.fcn = nn.Linear(256, out_channels)
+        self.fcn = nn.Linear(in_channels, out_channels)
 
     def forward(self, x):
         # x shape: N,C,T,V. T: Temporal features; V: Spatial features

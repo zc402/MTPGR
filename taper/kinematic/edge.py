@@ -1,7 +1,9 @@
-# Spatial edges
+"""
+Spatially connected joints
+"""
 import numpy as np
 from vibe.models.smpl import JOINT_MAP
-from taper.kinematic.parts import p2pat
+from taper.kinematic.sparse_to_dense import part_after_take
 _edges = [
     'OP Neck', 'OP RShoulder',  # 右肩
     'OP Neck', 'OP LShoulder',  # 左肩
@@ -27,4 +29,3 @@ _edges = [
 edges = list(map(JOINT_MAP.get, _edges))  # edge_list[part_idx]
 edges = np.array(edges).reshape((-1, 2))  # part_idx array of shape (edges, 2)
 
-edges_at = np.array(map(p2pat, edges))  # edge idx after '.take()'. part_idx_at array of shape (edges, 2)

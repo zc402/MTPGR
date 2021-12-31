@@ -1,17 +1,20 @@
 import torch
 
-from taper.stgcn.layers.st_layer import STLayer
+from taper.network.subnet.layers.st_layer import STLayer
 from torch import nn
-import torch.nn.functional as F
-from taper.stgcn.adjacency_matrix import AdjacencyMatrix
+from taper.network.adjacency_matrix import AdjacencyMatrix
 
-class StgcnBoneNetwork(nn.Module):
-    """ STGCN bone network"""
+class BoneNetwork(nn.Module):
+    """The STGCN bone network, contains mutliple STLayers. output shape NCTV"""
 
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, out_channels, A):
+        """
+        :param in_channels: The channel 'C' from input NCTV, num of features in a vertex.
+        :param out_channels: defaults to 256
+        :param A:
+        """
         super().__init__()
         edge_importance_weighting = True
-        A = AdjacencyMatrix().get_height_config_adjacency()
         self.register_buffer('A', A)
         num_spatial_labels = A.size(0)
 
@@ -25,7 +28,7 @@ class StgcnBoneNetwork(nn.Module):
             STLayer(128, 128, num_spatial_labels),
             STLayer(128, 256, num_spatial_labels),
             STLayer(256, 256, num_spatial_labels),
-            STLayer(256, 256, num_spatial_labels),
+            STLayer(256, out_channels, num_spatial_labels),
         ))
 
         if edge_importance_weighting:
@@ -40,9 +43,6 @@ class StgcnBoneNetwork(nn.Module):
     def forward(self, x):
         # x shape: N,C,T,V. T: Temporal features; V: Spatial features
         N, C, T, V = x.size()
-
-        # for layer in self.st_layers:
-        #     x, _ = layer(x, self.A)  # x:NCTV
 
         for gcn, importance in zip(self.st_layers, self.edge_importance):
             x, _ = gcn(x, self.A * importance)

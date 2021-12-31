@@ -1,5 +1,4 @@
 from pathlib import Path
-from taper.stgcn.st_gcn_fc import StgcnFc
 from torch import nn
 import torch
 

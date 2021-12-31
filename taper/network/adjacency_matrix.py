@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-# from taper.kinematic import edges, heights, p2pat
+# from network.kinematic import edges, heights, p2pat
 
 
 class AdjacencyMatrix:

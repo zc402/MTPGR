@@ -66,7 +66,7 @@ def tracking_to_vibe(image_folder: Path,
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory. (./TAPER expected) '
     track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     tracks = track_folder.glob('*')
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
