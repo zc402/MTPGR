@@ -3,7 +3,7 @@ from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
-from taper.dataset.traffic import TrafficGesClips
+from taper.dataset.concat_video import TrafficGesClips
 from taper.models.stgcn_fc import STGCN_FC
 
 from torch import optim

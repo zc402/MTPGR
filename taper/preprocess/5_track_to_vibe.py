@@ -4,7 +4,6 @@ from vibe.rt import RtVibe
 import cv2
 
 from taper.config import get_cfg_defaults
-from taper.dataset.path import train_videos
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -71,12 +70,13 @@ if __name__ == '__main__':
     tracks = track_folder.glob('*')
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
     tk_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
-    tk_crct_folder.mkdir(exist_ok=True)
+    assert img_root.is_dir()
+    assert tk_crct_folder.is_dir()
+    vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
+    vibe_folder.mkdir(exist_ok=True)
     for track in tracks:
         img_folder = img_root / track.stem
-        save_path = tk_crct_folder / (track.stem + '.npy')
+        save_path = vibe_folder / (track.stem + '.npy')
         tracking_to_vibe(img_folder, track, save_path)
 
 
-# tracking_to_vibe(Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0217.images'),
-#                  Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0217.track_correct'))

@@ -1,7 +1,7 @@
 import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
-from taper.dataset.traffic import VideoConcat
+from taper.dataset.concat_video import VideoConcat
 
 
 loader = DataLoader(VideoConcat(), batch_size=50, drop_last=False)
