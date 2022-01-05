@@ -6,7 +6,7 @@ import pickle
 from taper.config import get_cfg_defaults
 
 
-def to_tracking(image_folder: Path, save_path: Path):
+def to_track(image_folder: Path, save_path: Path):
     """
     Run multi-person tracker on video
     :param image_folder:
@@ -40,4 +40,7 @@ if __name__ == '__main__':
     track_folder.mkdir(exist_ok=True)
     for img_folder in img_root.glob('*'):
         track_path = track_folder / (img_folder.stem + '.pkl')
-        to_tracking(img_folder, track_path)
+        if track_path.is_file():
+            print(f'track file {track_path.absolute()} already exists')
+        else:
+            to_track(img_folder, track_path)
