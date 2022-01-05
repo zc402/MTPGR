@@ -46,12 +46,12 @@ def tracking_to_vibe(image_folder: Path,
     frame_image_dict = {int(image.stem): image for image in images}
 
     vibe_results = []
-    for i in tqdm(range(len(track_res[1]['frames']))):
-        single_track_res = {1: {
-            'bbox': track_res[1]['bbox'][i:i+1],  # No dimension reduction
-            'frames': track_res[1]['frames'][i:i+1]
+    for i in tqdm(range(len(track_res['frames']))):
+        single_track_res = {1: {  # num 1: person id, added to suit the vibe input format
+            'bbox': track_res['bbox'][i:i+1],  # No dimension reduction
+            'frames': track_res['frames'][i:i+1]
         }}
-        frame_num = track_res[1]['frames'][i]
+        frame_num = track_res['frames'][i]
         image_path = frame_image_dict[frame_num]
         image = cv2.imread(str(image_path))
         v_res = vibe(image, single_track_res)
@@ -65,7 +65,7 @@ def tracking_to_vibe(image_folder: Path,
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory. (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found. Check current working directory, expect "./TAPER"'
     track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     tracks = track_folder.glob('*')
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR

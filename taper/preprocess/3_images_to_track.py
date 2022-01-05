@@ -1,4 +1,4 @@
-import cv2  # otherwise the MPT reports segment fault
+import cv2  # unused, but must be imported, otherwise the MPT raises segment fault
 from multi_person_tracker import MPT
 from pathlib import Path
 import torch

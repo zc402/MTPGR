@@ -1,4 +1,5 @@
 """
+Find the track of police with non-maximum suppression
 The police is not always tracked correctly. Wrong tracks needs to be fixed manually.
 """
 import pickle
@@ -56,16 +57,16 @@ def non_maximum_suppression_1d(track_file: Path):
     return track_sort
 
 
-def concat_longest_tracks(track_mul: Path, save_path: Path):
+def find_concat_police_tracks(track_mul: Path, save_path: Path):
     # For interrupted tracks, concat all no-overlapping tracks into same track.
     track_sort = non_maximum_suppression_1d(track_mul)
     track_time_order = sorted(track_sort, key=lambda x: x[1]['frames'][0])
     new_frames = np.concatenate([x[1]['frames'] for x in track_time_order])
     new_bbox = np.concatenate([x[1]['bbox'] for x in track_time_order])
-    new_dict = {1: {'bbox': new_bbox, 'frames': new_frames}}
-    # save_path = track_mul.with_suffix('.track_correct')
+    police_dict = {'bbox': new_bbox, 'frames': new_frames}
+
     with save_path.open('wb') as f:
-        pickle.dump(new_dict, f)
+        pickle.dump(police_dict, f)
 
 
 if __name__ == '__main__':
@@ -79,7 +80,7 @@ if __name__ == '__main__':
     track_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
     for track in tracks:
         save_path = track_crct_folder / track.stem
-        concat_longest_tracks(track, save_path)
+        find_concat_police_tracks(track, save_path)
         print(f'track saved into {save_path.absolute()}')
 # non_maximum_suppression_1d(Path('/home/zc/文档/3. PGv2标注和错误动作剪辑/4K9A0227.track'))
 
