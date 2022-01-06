@@ -2,7 +2,6 @@
 Height value for each joint.
 """
 from vibe.models.smpl import JOINT_MAP
-from taper.kinematic.sparse_to_dense import part_after_take
 
 # _heights: list_height[list_parts[part_name]]
 _heights = [

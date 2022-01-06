@@ -3,7 +3,7 @@ Spatially connected joints
 """
 import numpy as np
 from vibe.models.smpl import JOINT_MAP
-from taper.kinematic.sparse_to_dense import part_after_take
+
 _edges = [
     'OP Neck', 'OP RShoulder',  # 右肩
     'OP Neck', 'OP LShoulder',  # 左肩

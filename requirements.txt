@@ -1,3 +1,7 @@
+numpy==1.17.5
+torch==1.4.0
+torchvision==0.5.0
+
 tqdm==4.28.1
 yacs==0.1.6
 h5py==2.10.0

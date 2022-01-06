@@ -3,7 +3,6 @@ from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
-from taper.models.stgcn_fc import STGCN_FC
 
 from torch import optim
 from taper.dataset import SingleVideo, ConcatVideo
@@ -12,7 +11,7 @@ from taper.config import get_cfg_defaults
 from taper.network import TAPER
 
 # joint xy coords -> gcn -> fcn
-class GcnTrainer:
+class Trainer:
     def __init__(self):
         self.cfg = get_cfg_defaults()
         self.data_loader = self.train_data_loader(self.cfg)
@@ -38,6 +37,8 @@ class GcnTrainer:
 
                 if step % 100 == 0:
                     print("Step: %d, Loss: %f" % (step, loss_tensor.item()))
+                    print(f"Accuracy: {self.acc(class_out, label_NT)}")
+
                 if step % 2000 == 0:
                     self.save_ckpt(self.cfg, self.model)
                 step = step + 1
@@ -74,3 +75,12 @@ class GcnTrainer:
     def save_ckpt(cfg, model):
         save_path = Path(cfg.CKPT_DIR) / cfg.TAPER_CKPT
         torch.save(model.state_dict(), save_path)
+
+    @staticmethod
+    def acc(input, target):
+        class_N = torch.argmax(input, dim=1)
+        acc = (class_N == target).mean().item()
+        return acc
+
+if __name__ == '__main__':
+    Trainer().train()

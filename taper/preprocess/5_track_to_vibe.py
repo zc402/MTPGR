@@ -66,17 +66,21 @@ def tracking_to_vibe(image_folder: Path,
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found. Check current working directory, expect "./TAPER"'
-    track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
-    tracks = track_folder.glob('*')
+    # track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
+    # tracks = track_folder.glob('*')
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
     tk_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
+    tk_crct_files = tk_crct_folder.glob('*.pkl')
     assert img_root.is_dir()
     assert tk_crct_folder.is_dir()
     vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
     vibe_folder.mkdir(exist_ok=True)
-    for track in tracks:
+    for track in tk_crct_files:
         img_folder = img_root / track.stem
-        save_path = vibe_folder / (track.stem + '.npy')
-        tracking_to_vibe(img_folder, track, save_path)
+        save_path = vibe_folder / (track.stem + '.pkl')
+        if save_path.is_file():
+            print(f'{save_path.absolute()} already exists')
+        else:
+            tracking_to_vibe(img_folder, track, save_path)
 
 

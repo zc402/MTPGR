@@ -27,6 +27,8 @@ _C.TRAIN = CN()  # Training
 
 _C.TRAIN.CLIP_LEN = 300  # Length of video sample for training
 _C.TRAIN.BATCH_SIZE = 10  # Num of clips in one batch
+_C.TRAIN.SET = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221', '4K9A0222', '4K9A0223', '4K9A0224',
+                '4K9A0226', '4K9A0227', '5566']  # Train set  # TODO: Implement dataset split
 
 def get_cfg_defaults():
     return _C.clone()
