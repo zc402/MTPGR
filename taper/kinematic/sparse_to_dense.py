@@ -23,4 +23,9 @@ for sparse_part_idx, height_value in heights.items():
     heights_dense[dense_part_idx] = height_value
 
 # Dense edges. array of shape (edges, 2)
-edges_dense = np.array(map(part_after_take.get, edges))
+edges_1d = edges.reshape((-1))
+edges_dense = map(part_after_take.get, edges_1d.tolist())
+edges_dense = list(edges_dense)
+edges_dense = np.array(edges_dense)
+edges_dense = edges_dense.reshape(edges.shape)
+pass

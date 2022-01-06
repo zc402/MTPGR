@@ -12,7 +12,7 @@ class TAPER(nn.Module):
     def __init__(self):
         super().__init__()
         in_channels = 3  # TODO: change to 6, 3 for position params, 3 for rotation params ?
-        out_channels = 8  # TODO: 8 or 8*4=32 ?
+        out_channels = 9  # TODO: 9 or 8*4=32 ?
 
         # Build adj matrix with height layering partitioning strategy
         A = AdjacencyMatrix(edges_dense, heights_dense).get_height_config_adjacency()

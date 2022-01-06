@@ -26,6 +26,7 @@ class ConcatVideo(Dataset):
         tensor_CTV = np.transpose(tensor_TVC, (2, 0, 1))
 
         label_T = [d['label'] for d in clip]
+        label_T = np.array(label_T)
 
         return {'tensor_ctv': tensor_CTV,
                 'label_t': label_T}  # N dimension is batch_size

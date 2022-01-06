@@ -20,11 +20,12 @@ class Trainer:
         self.opt = optim.Adam(self.model.parameters(), lr=1e-3)
 
     def train(self):
+        device = torch.device(self.cfg.MODEL.DEVICE)
         step = 1
         for epoch in range(100):
             for train_data in self.data_loader:
-                tensor_NCTV = train_data['tensor_ctv']  # Batch is N dim
-                label_NT = train_data['label_t']  # N,T
+                tensor_NCTV = train_data['tensor_ctv'].to(device)  # Batch is N dim
+                label_NT = train_data['label_t'].to(device)  # N,T
 
                 class_out = self.model(tensor_NCTV)  # Out: N*T,C
                 label_NT = label_NT.reshape([-1])  # N*T
@@ -37,17 +38,21 @@ class Trainer:
 
                 if step % 100 == 0:
                     print("Step: %d, Loss: %f" % (step, loss_tensor.item()))
-                    print(f"Accuracy: {self.acc(class_out, label_NT)}")
+                    acc = self.acc(class_out, label_NT)
+                    print("Accuracy: {:.2f}".format(acc))
 
                 if step % 2000 == 0:
                     self.save_ckpt(self.cfg, self.model)
+                    print('Model save')
                 step = step + 1
 
     @staticmethod
     def train_data_loader(cfg):
+        names = cfg.TRAIN.SET
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
-        vibe_list = vibe_folder.glob('*.npy')
-        label_list = [Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR / (name + '.json5') for name in vibe_list]
+        vibe_list = [vibe_folder / (name + '.pkl') for name in names]
+        label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
+        label_list = [label_folder / (name + '.json5') for name in names]
 
         video_dataset_list = [SingleVideo(v, l, dense_indices) for v, l in zip(vibe_list, label_list)]
         concat_dataset = ConcatVideo(video_dataset_list, cfg.TRAIN.CLIP_LEN)
@@ -57,7 +62,7 @@ class Trainer:
     @staticmethod
     def train_model(cfg):
         model = TAPER()
-        ckpt_path = Path(cfg.CKPT_DIR) / cfg.TAPER_CKPT
+        ckpt_path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
         if ckpt_path.is_file():
             print("Resume from previous ckeckpoint")
             ckpt = torch.load(ckpt_path)
@@ -65,21 +70,21 @@ class Trainer:
         else:
             print("Previous checkpoint not found.")
             print("Start the training from scratch!")
-            Path(cfg.CKPT_DIR).mkdir(exist_ok=True)
+            ckpt_path.mkdir(exist_ok=True)
         model.train()
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        device = torch.device(cfg.MODEL.DEVICE)
         model.to(device)
         return model
 
     @staticmethod
     def save_ckpt(cfg, model):
-        save_path = Path(cfg.CKPT_DIR) / cfg.TAPER_CKPT
+        save_path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
         torch.save(model.state_dict(), save_path)
 
     @staticmethod
     def acc(input, target):
         class_N = torch.argmax(input, dim=1)
-        acc = (class_N == target).mean().item()
+        acc = (class_N == target).float().mean().item()
         return acc
 
 if __name__ == '__main__':

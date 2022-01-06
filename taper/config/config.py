@@ -20,15 +20,17 @@ _C.GENDATA.TK_CRCT_DIR = 'track_nms'  # '.npy' person track of the police, gener
 _C.GENDATA.VIBE_DIR = 'vibe'  # '.npy' vibe parameters of **TRACKED** frames.
 
 _C.MODEL = CN()  # Network configs and save paths
-_C.MODEL.CKPT_DIR = 'checkpoints'
-_C.MODEL.TAPER_CKPT = 'taper.ckpt'
+
+_C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
+_C.MODEL.TAPER_CKPT = 'taper.ckpt'  # TAPER ckpt file
+_C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
 
 _C.TRAIN = CN()  # Training
 
 _C.TRAIN.CLIP_LEN = 300  # Length of video sample for training
 _C.TRAIN.BATCH_SIZE = 10  # Num of clips in one batch
-_C.TRAIN.SET = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221', '4K9A0222', '4K9A0223', '4K9A0224',
-                '4K9A0226', '4K9A0227', '5566']  # Train set  # TODO: Implement dataset split
+_C.TRAIN.SET = ['4K9A0217', '4K9A0218', ]#'4K9A0219', '4K9A0220', '4K9A0221', '4K9A0222', '4K9A0223', '4K9A0224',
+                #'4K9A0226', '4K9A0227', '5566']  # Videos used in training
 
 def get_cfg_defaults():
     return _C.clone()
