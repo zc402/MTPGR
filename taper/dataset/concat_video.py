@@ -16,10 +16,12 @@ class ConcatVideo(Dataset):
         self.num_frames = len(self.concat_dataset)
 
     def __len__(self):
+
         return self.num_frames - self.clip_len
 
     def __getitem__(self, index):
-        # BUG of pytorch: concat dataset do not support slice
+        # Extract a clip from concatenated videos
+        # Concat dataset do not support slice
         clip: List[Dict[str: np.ndarray]] = [self.concat_dataset[x] for x in range(index, index+self.clip_len)]
 
         tensor_TVC = [d['tensor_vc'] for d in clip]
