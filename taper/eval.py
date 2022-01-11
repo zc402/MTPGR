@@ -1,8 +1,10 @@
+import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
+import matplotlib.pyplot as plt
 
 from torch import optim
 from taper.dataset import SingleVideo, ConcatVideo
@@ -20,42 +22,18 @@ class Evaluate():
     @torch.no_grad()
     def eval(self):
         device = torch.device(self.cfg.MODEL.DEVICE)
-        out_stream = []
-        label_stream = []
+        pred_stream = []  # List of predicted classes: [0,0,0,1,1,1,0,0,2,2,...]
+        label_stream = []  # List of ground truth classes
         for num_frame, train_data in enumerate(self.data_loader):
             tensor_NCTV = train_data['tensor_ctv'].to(device)  # Batch is N dim
             label_NT = train_data['label_t'].to(device)  # N,T
 
-            out_TC = self.model(tensor_NCTV)  # Out: N*T,C
-            out_T = torch.argmax(out_TC, dim=1)  # N*T
-            out_T = out_T.cpu()
+            pred_TC = self.model(tensor_NCTV)  # Out: N*T,C
+            pred_T = torch.argmax(pred_TC, dim=1)  # N*T. In eval mode, N=1
             label_T = label_NT.reshape([-1])  # N*T
-            label_T = label_T.cpu()
 
-            # To simulate the sliding window, only the last one result counts. except the beginning.
-            if len(out_stream) == 0:
-                out_stream.extend(out_T.tolist())
-            else:
-                out_stream.append(out_T.tolist()[-1])
-
-            if len(label_stream) == 0:
-                label_stream.extend(label_T.tolist())
-            else:
-                label_stream.append(label_T.tolist()[-1])
-
-            if num_frame % 1000 == 0:
-                correct = np.array(out_stream) == np.array(label_stream)
-                acc = correct.astype(np.float32).mean()
-                print("Frame: {}, Accuracy: {:.2f}".format(num_frame+self.cfg.EVAL.CLIP_LEN, acc))
-            # if step % 100 == 0:
-            #     print("Step: %d, Loss: %f" % (step, loss_tensor.item()))
-            #     acc = self.acc(class_out, label_NT)
-            #     print("Accuracy: {:.2f}".format(acc))
-            #
-            # if step % 2000 == 0:
-            #     self.save_ckpt(self.cfg, self.model)
-            #     print('Model save')
-            # step = step + 1
+            self.sliding_add(self.cfg, pred_stream, label_stream, num_frame, pred_T, label_T)
+        self.post_prediction(self.cfg, pred_stream, label_stream)
 
     @staticmethod
     def eval_data_loader(cfg):
@@ -86,10 +64,52 @@ class Evaluate():
         return model
 
     @staticmethod
-    def acc(input, target):
-        class_N = torch.argmax(input, dim=1)
-        acc = (class_N == target).float().mean().item()
-        return acc
+    def sliding_add(cfg,
+                    pred_stream,
+                    label_stream,
+                    num_frame,
+                    pred_T,
+                    label_T):
+
+        pred_T = pred_T.cpu()
+        label_T = label_T.cpu()
+
+        # To simulate the sliding window, only the last one result counts. except the beginning.
+        if len(pred_stream) == 0:
+            pred_stream.extend(pred_T.tolist())
+        else:
+            pred_stream.append(pred_T.tolist()[-1])
+
+        if len(label_stream) == 0:
+            label_stream.extend(label_T.tolist())
+        else:
+            label_stream.append(label_T.tolist()[-1])
+
+        plot = False
+        if not plot:
+            return
+        if (num_frame + cfg.EVAL.CLIP_LEN) % 10000 == 0:
+            correct = np.array(pred_stream) == np.array(label_stream)
+            acc = correct.astype(np.float32).mean()
+            print("Frame: {}, Accuracy: {:.2f}".format(num_frame + cfg.EVAL.CLIP_LEN, acc))
+            plt.plot(label_stream)
+            plt.plot(pred_stream)
+            plt.show()
+
+    @staticmethod
+    def post_prediction(cfg, pred_stream, label_stream,):
+        assert len(pred_stream) == len(label_stream)
+        correct = np.array(pred_stream) == np.array(label_stream)
+        acc = correct.astype(np.float32).mean()
+        print("Frame: {}, Accuracy: {:.2f}".format(len(pred_stream) + cfg.EVAL.CLIP_LEN, acc))
+
+        save_folder = Path('output') / 'j14_nocam_cls8'
+        save_folder.mkdir(exist_ok=True)
+
+        save_path = save_folder / 'result.pkl'
+        with save_path.open('wb') as f:
+            pickle.dump((pred_stream, label_stream), f)
+
 
 if __name__ == '__main__':
     Evaluate().eval()
