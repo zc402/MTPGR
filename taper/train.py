@@ -70,7 +70,7 @@ class Trainer:
         else:
             print("Previous checkpoint not found.")
             print("Start the training from scratch!")
-            ckpt_path.mkdir(exist_ok=True)
+            ckpt_path.parent.mkdir(exist_ok=True)
         model.train()
         device = torch.device(cfg.MODEL.DEVICE)
         model.to(device)

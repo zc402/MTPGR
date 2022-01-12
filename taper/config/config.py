@@ -29,12 +29,15 @@ _C.TRAIN = CN()  # Training
 
 _C.TRAIN.CLIP_LEN = 300  # Length of video sample for training
 _C.TRAIN.BATCH_SIZE = 10  # Num of clips in one batch
-_C.TRAIN.SET = ['4K9A0217', '4K9A0218', ]#'4K9A0219', '4K9A0220', '4K9A0221', '4K9A0222', '4K9A0223', '4K9A0224',
-                #'4K9A0226', '4K9A0227']  # Videos used in training
+# Training set videos
+_C.TRAIN.SET = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221',
+                '5566', '5568', '5570']
 
 _C.EVAL = CN()
 _C.EVAL.CLIP_LEN = 150  # The length of the sliding window.
-_C.EVAL.SET = ['5566', '5568']
+# Eval set videos
+_C.EVAL.SET = ['4K9A0222', '4K9A0223', '4K9A0224', '4K9A0226', '4K9A0227',
+               '5571', '5573']
 
 def get_cfg_defaults():
     return _C.clone()

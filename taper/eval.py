@@ -3,10 +3,9 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 import torch
 import numpy as np
-from torch.nn import CrossEntropyLoss
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-from torch import optim
 from taper.dataset import SingleVideo, ConcatVideo
 from taper.kinematic import dense_indices
 from taper.config import get_cfg_defaults
@@ -24,7 +23,7 @@ class Evaluate():
         device = torch.device(self.cfg.MODEL.DEVICE)
         pred_stream = []  # List of predicted classes: [0,0,0,1,1,1,0,0,2,2,...]
         label_stream = []  # List of ground truth classes
-        for num_frame, train_data in enumerate(self.data_loader):
+        for num_frame, train_data in enumerate(tqdm(self.data_loader)):
             tensor_NCTV = train_data['tensor_ctv'].to(device)  # Batch is N dim
             label_NT = train_data['label_t'].to(device)  # N,T
 
@@ -85,7 +84,7 @@ class Evaluate():
         else:
             label_stream.append(label_T.tolist()[-1])
 
-        plot = False
+        plot = False  # Graph of predictions and labels
         if not plot:
             return
         if (num_frame + cfg.EVAL.CLIP_LEN) % 10000 == 0:
@@ -103,10 +102,9 @@ class Evaluate():
         acc = correct.astype(np.float32).mean()
         print("Frame: {}, Accuracy: {:.2f}".format(len(pred_stream) + cfg.EVAL.CLIP_LEN, acc))
 
-        save_folder = Path('output') / 'j14_nocam_cls8'
-        save_folder.mkdir(exist_ok=True)
+        save_path = Path('output') / 'j14_nocam_cls8' / 'result.pkl'
+        save_path.parent.mkdir(exist_ok=True)
 
-        save_path = save_folder / 'result.pkl'
         with save_path.open('wb') as f:
             pickle.dump((pred_stream, label_stream), f)
 
