@@ -6,7 +6,7 @@ from torch.nn import CrossEntropyLoss
 
 from torch import optim
 from taper.dataset import SingleVideo, ConcatVideo
-from taper.kinematic import dense_indices
+from taper.kinematic import SparseToDense
 from taper.config import get_cfg_defaults
 from taper.network import TAPER
 
@@ -54,14 +54,16 @@ class Trainer:
         label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
         label_list = [label_folder / (name + '.json5') for name in names]
 
-        video_dataset_list = [SingleVideo(v, l, dense_indices) for v, l in zip(vibe_list, label_list)]
+        dense_indices = SparseToDense(cfg.MODEL.USE_CAM_POSE).part_id_dense
+        video_dataset_list = [SingleVideo(v, l, dense_indices, cfg.MODEL.USE_CAM_POSE) for v, l in zip(vibe_list, label_list)]
         concat_dataset = ConcatVideo(video_dataset_list, cfg.TRAIN.CLIP_LEN)
         train_loader = DataLoader(concat_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, drop_last=True)
         return train_loader
 
     @staticmethod
     def train_model(cfg):
-        model = TAPER()
+        dense_ids = SparseToDense(cfg.MODEL.USE_CAM_POSE)
+        model = TAPER(dense_ids.dense_edges(), dense_ids.dense_heights())
         ckpt_path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
         if ckpt_path.is_file():
             print("Resume from previous ckeckpoint")

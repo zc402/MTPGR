@@ -42,7 +42,7 @@ class Evaluate():
         label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
         label_list = [label_folder / (name + '.json5') for name in names]
 
-        video_dataset_list = [SingleVideo(v, l, dense_indices) for v, l in zip(vibe_list, label_list)]
+        video_dataset_list = [SingleVideo(v, l, dense_indices, cfg.MODEL.USE_CAM_POSE) for v, l in zip(vibe_list, label_list)]
         concat_dataset = ConcatVideo(video_dataset_list, cfg.EVAL.CLIP_LEN)
         eval_loader = DataLoader(concat_dataset, batch_size=1, shuffle=False, drop_last=True)
         return eval_loader

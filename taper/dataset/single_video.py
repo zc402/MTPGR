@@ -1,6 +1,7 @@
 from pathlib import Path
 import pickle
 import json5
+import numpy as np
 from torch.utils.data import Dataset
 
 
@@ -13,7 +14,8 @@ class SingleVideo(Dataset):
     """
     def __init__(self, vibe_path: Path,
                  gesture_label_path: Path,
-                 dense_indices: list = None):
+                 dense_indices: list = None,  # Map sparse part indices to dense indices. Set None to ignore.
+                 use_cam_pose: bool = False):  # Concat camera pose to the last of V dim in tensor_VC
         with vibe_path.open('rb') as f:
             self.vibe = pickle.load(f)
         with gesture_label_path.open('r') as f:
@@ -21,6 +23,7 @@ class SingleVideo(Dataset):
         # Note that 'vibe' is shorter than 'gesture' due to failed tracks caused by image occlusion.
         # Therefore, the 'frame' in 'vibe' is used as index for 'gesture'
         self.dense_indices = dense_indices
+        self.use_cam_pose = use_cam_pose
 
     def __len__(self):
         return len(self.vibe)
@@ -32,6 +35,13 @@ class SingleVideo(Dataset):
         gesture = self.gesture[frame_num]
 
         tensor_VC = self._to_gcn_feature(vibe_params)
+
+        if self.use_cam_pose:
+            # The cam pose should be concat to index 0 of all features, according to JOINT_MAP dense indices
+            cam = vibe_params['pred_cam']
+            cam = cam.reshape((-1, 3))
+            tensor_VC = np.concatenate((cam, tensor_VC))
+
         if self.dense_indices is not None:
             tensor_VC = tensor_VC[self.dense_indices]
 
@@ -46,7 +56,7 @@ class SingleVideo(Dataset):
         :param vibe_params:
         :return:
         """
-        pose = vibe_params['pose']  # pose params of shape 72,
+        pose = vibe_params['pose']  # 72 pose params,
         pose_VC = pose.reshape((-1, 3))  # (num_keypoints, rotation_3d)
         # pose_VC_2 = pose_VC[part_indices, :]  # Only take useful parts, do not send unused parts into GCN.
         return pose_VC

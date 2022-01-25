@@ -22,8 +22,9 @@ _C.GENDATA.VIBE_DIR = 'vibe'  # '.npy' vibe parameters of **TRACKED** frames.
 _C.MODEL = CN()  # Network configs and save paths
 
 _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
-_C.MODEL.TAPER_CKPT = 'taper.ckpt'  # TAPER ckpt file
+_C.MODEL.TAPER_CKPT = 'taper_cam.ckpt'  # TAPER ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
+_C.MODEL.USE_CAM_POSE = True  # Add camera pose to joint features
 
 _C.TRAIN = CN()  # Training
 

@@ -9,7 +9,7 @@ import numpy as np
 from tqdm import tqdm
 
 
-class VibeInputTrack(RtVibe):
+class Track2Vibe(RtVibe):
     @torch.no_grad()
     def __call__(self, image: np.ndarray, track_res: dict):
         # Tracking
@@ -38,7 +38,7 @@ def tracking_to_vibe(image_folder: Path,
     with track_file.open('rb') as f:
         track_res = pickle.load(f)
 
-    vibe = VibeInputTrack()
+    vibe = Track2Vibe()
     vibe.render = False
 
     images = image_folder.glob('*.jpg')
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     for track in tk_crct_files:
         img_folder = img_root / track.stem
         save_path = vibe_folder / (track.stem + '.pkl')
-        if save_path.is_file():
+        if False: #save_path.is_file():
             print(f'{save_path.absolute()} already exists')
         else:
             tracking_to_vibe(img_folder, track, save_path)

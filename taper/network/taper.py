@@ -6,10 +6,9 @@ from torch import nn
 
 from .adjacency_matrix import AdjacencyMatrix
 from .subnet import BoneNetwork, SpatialMean
-from taper.kinematic import edges_dense, heights_dense
 
 class TAPER(nn.Module):
-    def __init__(self):
+    def __init__(self, edges_dense, heights_dense):
         super().__init__()
         in_channels = 3  # TODO: change to 6, 3 for position params, 3 for rotation params ?
         out_channels = 9  # TODO: 9 or 8*4=32 ?
