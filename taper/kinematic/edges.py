@@ -2,7 +2,7 @@
 Spatially connected joints
 """
 import numpy as np
-from .part import Parts
+
 
 class Edges:
 
@@ -28,21 +28,21 @@ class Edges:
         'OP LKnee', 'OP LAnkle',
     ]
 
-    def __init__(self, use_cam_pose):
-        self.use_cam_pose = use_cam_pose
-        self.parts = Parts(use_cam_pose)
-
-    def get(self):
-
-        if self.use_cam_pose:
-
+    def __init__(self, pname_id_map: dict, use_cam_pose: bool):
+        if use_cam_pose:
             self._edges_name.extend(['OP MidHip', 'PRED_CAM'])
 
-        edges = list(map(self.parts.name_id_map().get, self._edges_name))  # edge_list[part_idx]
-        edges = np.array(edges).reshape((-1, 2))  # part_idx array of shape (edges, 2)
-        return edges
+        self.edges = list(map(pname_id_map.get, self._edges_name))  # edge_list[part_idx]
+        self.edges = np.array(self.edges).reshape((-1, 2))  # part_id array of shape (num_edges, 2)
 
+    def get_edges(self):
+        return self.edges
 
+    @classmethod
+    def from_config(cls, cfg):
+        from .parts import Parts
+        parts = Parts.from_config(cfg)
+        return Edges(parts.get_name_id_map(), cfg.MODEL.USE_CAM_POSE)
 
 
 

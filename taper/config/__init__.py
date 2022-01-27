@@ -1,1 +1,1 @@
-from .config import get_cfg_defaults
+from .defaults import get_cfg_defaults

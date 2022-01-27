@@ -10,6 +10,7 @@ _C.DATASET = CN()  # Raw dataset
 _C.DATASET.PGDS2_DIR = 'police_gesture_v2'  # Root folder of pgdv2
 _C.DATASET.VIDEO_DIR = 'video'  # '.mp4' videos
 _C.DATASET.LLC_DIR = 'label_timestamp'  # '-proj.llc' gesture start and end timestamps annotated with losslesscut
+_C.DATASET.SELECT = ['0000']  # Select videos
 
 _C.GENDATA = CN()  # Preprocessed generated data
 
@@ -25,20 +26,21 @@ _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
 _C.MODEL.TAPER_CKPT = 'taper_cam.ckpt'  # TAPER ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
 _C.MODEL.USE_CAM_POSE = True  # Add camera pose to joint features
+_C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
+_C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 
 _C.TRAIN = CN()  # Training
 
-_C.TRAIN.CLIP_LEN = 300  # Length of video sample for training
-_C.TRAIN.BATCH_SIZE = 10  # Num of clips in one batch
+# _C.TRAIN.CLIP_LEN = 300
+# _C.TRAIN.BATCH_SIZE = 10
 # Training set videos
-_C.TRAIN.SET = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221',
-                '5566', '5568', '5570']
+# _C.TRAIN.SET =
 
-_C.EVAL = CN()
-_C.EVAL.CLIP_LEN = 150  # The length of the sliding window.
+# _C.VAL = CN()
+# _C.VAL.CLIP_LEN = 150  # The length of the sliding window.
 # Eval set videos
-_C.EVAL.SET = ['4K9A0222', '4K9A0223', '4K9A0224', '4K9A0226', '4K9A0227',
-               '5571', '5573']
+# _C.VAL.SET = ['4K9A0222', '4K9A0223', '4K9A0224', '4K9A0226', '4K9A0227',
+#                '5571', '5573']
 
 def get_cfg_defaults():
     return _C.clone()

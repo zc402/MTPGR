@@ -12,7 +12,7 @@ from taper.config import get_cfg_defaults
 from taper.network import TAPER
 
 # joint xy coords -> gcn -> fcn
-class Evaluate():
+class Val():
     def __init__(self):
         self.cfg = get_cfg_defaults()
         self.data_loader = self.eval_data_loader(self.cfg)
@@ -36,19 +36,19 @@ class Evaluate():
 
     @staticmethod
     def eval_data_loader(cfg):
-        names = cfg.EVAL.SET
+        names = cfg.VAL.SET
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
         vibe_list = [vibe_folder / (name + '.pkl') for name in names]
         label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
         label_list = [label_folder / (name + '.json5') for name in names]
 
         video_dataset_list = [SingleVideo(v, l, dense_indices, cfg.MODEL.USE_CAM_POSE) for v, l in zip(vibe_list, label_list)]
-        concat_dataset = ConcatVideo(video_dataset_list, cfg.EVAL.CLIP_LEN)
+        concat_dataset = ConcatVideo(video_dataset_list, cfg.VAL.CLIP_LEN)
         eval_loader = DataLoader(concat_dataset, batch_size=1, shuffle=False, drop_last=True)
         return eval_loader
 
     @staticmethod
-    def eval_model(cfg):
+    def val_model(cfg):
         model = TAPER()
         ckpt_path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
         if ckpt_path.is_file():
@@ -57,7 +57,7 @@ class Evaluate():
             model.load_state_dict(ckpt)
         else:
             raise FileNotFoundError(f'No checkpoint in {ckpt_path.absolute()}')
-        model.eval()
+        model.val()
         device = torch.device(cfg.MODEL.DEVICE)
         model.to(device)
         return model
@@ -87,10 +87,10 @@ class Evaluate():
         plot = False  # Graph of predictions and labels
         if not plot:
             return
-        if (num_frame + cfg.EVAL.CLIP_LEN) % 10000 == 0:
+        if (num_frame + cfg.VAL.CLIP_LEN) % 10000 == 0:
             correct = np.array(pred_stream) == np.array(label_stream)
             acc = correct.astype(np.float32).mean()
-            print("Frame: {}, Accuracy: {:.2f}".format(num_frame + cfg.EVAL.CLIP_LEN, acc))
+            print("Frame: {}, Accuracy: {:.2f}".format(num_frame + cfg.VAL.CLIP_LEN, acc))
             plt.plot(label_stream)
             plt.plot(pred_stream)
             plt.show()
@@ -100,7 +100,7 @@ class Evaluate():
         assert len(pred_stream) == len(label_stream)
         correct = np.array(pred_stream) == np.array(label_stream)
         acc = correct.astype(np.float32).mean()
-        print("Frame: {}, Accuracy: {:.2f}".format(len(pred_stream) + cfg.EVAL.CLIP_LEN, acc))
+        print("Frame: {}, Accuracy: {:.2f}".format(len(pred_stream) + cfg.VAL.CLIP_LEN, acc))
 
         save_path = Path('output') / 'j14_nocam_cls8' / 'result.pkl'
         save_path.parent.mkdir(exist_ok=True)
@@ -110,4 +110,4 @@ class Evaluate():
 
 
 if __name__ == '__main__':
-    Evaluate().eval()
+    Val().eval()

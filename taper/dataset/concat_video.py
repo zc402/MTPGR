@@ -33,3 +33,19 @@ class ConcatVideo(Dataset):
         return {'tensor_ctv': tensor_CTV,
                 'label_t': label_T}  # N dimension is batch_size
 
+    @classmethod
+    def from_config(cls, cfg):
+        from pathlib import Path
+        from .single_video import SingleVideo
+
+        names = cfg.DATASET.SELECT
+        # Construct paths
+        vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
+        vibe_list = [vibe_folder / (name + '.pkl') for name in names]
+        label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
+        label_list = [label_folder / (name + '.json5') for name in names]
+
+        video_dataset_list = [SingleVideo.from_config(cfg)(vibe, label)
+                              for vibe, label in zip(vibe_list, label_list)]
+        instance = ConcatVideo(video_dataset_list, cfg.MODEL.CLIP_LEN)
+        return instance

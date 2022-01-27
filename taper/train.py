@@ -3,10 +3,10 @@ from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
+import logging
 
 from torch import optim
-from taper.dataset import SingleVideo, ConcatVideo
-from taper.kinematic import SparseToDense
+from taper.dataset import ConcatVideo
 from taper.config import get_cfg_defaults
 from taper.network import TAPER
 
@@ -14,10 +14,12 @@ from taper.network import TAPER
 class Trainer:
     def __init__(self):
         self.cfg = get_cfg_defaults()
+        self.cfg.merge_from_file(Path('configs', 'train.yaml'))
         self.data_loader = self.train_data_loader(self.cfg)
         self.model = self.train_model(self.cfg)
         self.loss = CrossEntropyLoss()  # The input is expected to contain raw, unnormalized scores for each class.
         self.opt = optim.Adam(self.model.parameters(), lr=1e-3)
+        self.logger = logging.getLogger(__name__)
 
     def train(self):
         device = torch.device(self.cfg.MODEL.DEVICE)
@@ -48,22 +50,14 @@ class Trainer:
 
     @staticmethod
     def train_data_loader(cfg):
-        names = cfg.TRAIN.SET
-        vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
-        vibe_list = [vibe_folder / (name + '.pkl') for name in names]
-        label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR
-        label_list = [label_folder / (name + '.json5') for name in names]
-
-        dense_indices = SparseToDense(cfg.MODEL.USE_CAM_POSE).part_id_dense
-        video_dataset_list = [SingleVideo(v, l, dense_indices, cfg.MODEL.USE_CAM_POSE) for v, l in zip(vibe_list, label_list)]
-        concat_dataset = ConcatVideo(video_dataset_list, cfg.TRAIN.CLIP_LEN)
-        train_loader = DataLoader(concat_dataset, batch_size=cfg.TRAIN.BATCH_SIZE, shuffle=True, drop_last=True)
+        concat_dataset = ConcatVideo.from_config(cfg)
+        train_loader = DataLoader(concat_dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True, drop_last=True)
         return train_loader
 
     @staticmethod
     def train_model(cfg):
-        dense_ids = SparseToDense(cfg.MODEL.USE_CAM_POSE)
-        model = TAPER(dense_ids.dense_edges(), dense_ids.dense_heights())
+
+        model = TAPER.from_config(cfg)
         ckpt_path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
         if ckpt_path.is_file():
             print("Resume from previous ckeckpoint")
