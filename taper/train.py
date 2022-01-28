@@ -5,6 +5,7 @@ import numpy as np
 from torch.nn import CrossEntropyLoss
 import logging
 
+from taper.network.predictor import Predictor
 from torch import optim
 from taper.dataset import ConcatVideo
 from taper.config import get_cfg_defaults
@@ -12,61 +13,38 @@ from taper.network import TAPER
 
 # joint xy coords -> gcn -> fcn
 class Trainer:
-    def __init__(self, dataloader, model, ckpt, device):
+    def __init__(self, predictor):
+        self.predictor = predictor
+        self.predictor.post_step = self.post_step
 
-        self.data_loader = dataloader
-        self.model = self._load_ckpt(model, ckpt, device)
-        self.ckpt = ckpt
-        self.device = device
+        self.model = predictor.model
         self.loss = CrossEntropyLoss()  # The input is expected to contain raw, unnormalized scores for each class.
         self.opt = optim.Adam(self.model.parameters(), lr=1e-3)
-        self.logger = logging.getLogger(__name__)
+        # self.logger = self._logger_setup()
+
+        self.step = 1
+
+    def post_step(self, class_TC, label_T):
+        # Cross Entropy, Input: (N*T, C), Target: (N*T).
+        loss_tensor = self.loss(class_TC, label_T)
+        self.opt.zero_grad()
+        loss_tensor.backward()
+        self.opt.step()
+
+        if self.step % 100 == 0:
+            print("Step: %d, Loss: %f" % (self.step, loss_tensor.item()))
+            acc = self.acc(class_TC, label_T)
+            print("Accuracy: {:.2f}".format(acc))
+
+        if self.step % 2000 == 0:
+            self.predictor.save_ckpt()
+
+        self.step = self.step + 1
 
     def train(self):
-        step = 1
+        print("Training ...")
         for epoch in range(100):
-            for train_data in self.data_loader:
-                tensor_NCTV = train_data['tensor_ctv'].to(self.device)  # Batch is N dim
-                label_NT = train_data['label_t'].to(self.device)  # N,T
-
-                class_out = self.model(tensor_NCTV)  # Out: N*T,C
-                label_NT = label_NT.reshape([-1])  # N*T
-
-                # Cross Entropy, Input: (N, C), Target: (N).
-                loss_tensor = self.loss(class_out, label_NT)
-                self.opt.zero_grad()
-                loss_tensor.backward()
-                self.opt.step()
-
-                if step % 100 == 0:
-                    print("Step: %d, Loss: %f" % (step, loss_tensor.item()))
-                    acc = self.acc(class_out, label_NT)
-                    print("Accuracy: {:.2f}".format(acc))
-
-                if step % 2000 == 0:
-                    self._save_ckpt(self.model, self.ckpt)
-
-                step = step + 1
-
-    @staticmethod
-    def _load_ckpt(model, ckpt, device):
-
-        if ckpt.is_file():
-            print("Resume from previous ckeckpoint")
-            ckpt = torch.load(ckpt)
-            model.load_state_dict(ckpt)
-        else:
-            print("Previous checkpoint not found.")
-            print("Start the training from scratch!")
-            ckpt.parent.mkdir(exist_ok=True)
-        model.train()
-        model.to(device)
-        return model
-
-    @staticmethod
-    def _save_ckpt(model, ckpt):
-        torch.save(model.state_dict(), ckpt)
-        print('Model save')
+            self.predictor.run_epoch()
 
     @staticmethod
     def acc(input, target):
@@ -75,19 +53,24 @@ class Trainer:
         return acc
 
     @classmethod
-    def _build_data_loader(cls, cfg):
+    def _data_loader(cls, cfg):  # Dataloader for training
         concat_dataset = ConcatVideo.from_config(cfg)
         train_loader = DataLoader(concat_dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True, drop_last=True)
         return train_loader
 
     @classmethod
     def from_config(cls, cfg):
-        data_loader = cls._build_data_loader(cfg)
-        model = TAPER.from_config(cfg)
-        device = torch.device(cfg.MODEL.DEVICE)
-        ckpt = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.TAPER_CKPT
-        instance = Trainer(data_loader, model, ckpt, device)
+        predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
+        instance = Trainer(predictor)
         return instance
+
+    # def _logger_setup(self):
+    #     logger = logging.getLogger(__name__)
+    #     console = logging.StreamHandler()
+    #     # add the handler to the root logger
+    #     logger.addHandler(console)
+    #     logger.setLevel(logging.INFO)
+    #     return logger
 
 if __name__ == '__main__':
     train_cfg = get_cfg_defaults()
