@@ -1,8 +1,8 @@
 import torch
 
-from taper.network.subnet.layers.st_layer import STLayer
+from mtpgr.network.subnet.layers.st_layer import STLayer
 from torch import nn
-from taper.network.adjacency_matrix import AdjacencyMatrix
+from mtpgr.network.adjacency_matrix import AdjacencyMatrix
 
 class BoneNetwork(nn.Module):
     """The STGCN bone network, contains mutliple STLayers. output shape NCTV"""

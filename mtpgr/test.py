@@ -6,15 +6,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from taper.dataset import SingleVideo, ConcatVideo
-from taper.config import get_cfg_defaults
-from taper.network import TAPER
+from mtpgr.dataset import SingleVideo, ConcatVideo
+from mtpgr.config import get_cfg_defaults
 
 # joint xy coords -> gcn -> fcn
-from taper.network.predictor import Predictor
+from mtpgr.network.predictor import Predictor
 
 
-class Validator():
+class Tester():
     def __init__(self, predictor):
         self.predictor = predictor
         self.predictor.model.eval()
@@ -88,11 +87,11 @@ class Validator():
     @classmethod
     def from_config(cls, cfg):
         predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
-        instance = Validator(predictor)
+        instance = Tester(predictor)
         return instance
 
 
 if __name__ == '__main__':
     val_cfg = get_cfg_defaults()
     val_cfg.merge_from_file(Path('configs', 'val.yaml'))
-    Validator.from_config(val_cfg).val()
+    Tester.from_config(val_cfg).val()

@@ -1,5 +1,5 @@
 """
-The overall architecture of TAPER
+The overall architecture of MTPGR
 """
 
 from torch import nn
@@ -8,7 +8,7 @@ from .adjacency_matrix import AdjacencyMatrix
 from .subnet import BoneNetwork, SpatialMean
 
 
-class TAPER(nn.Module):
+class MTPGR(nn.Module):
     def __init__(self, edges, heights):
         """
         Traffic gesture recognizer
@@ -31,9 +31,9 @@ class TAPER(nn.Module):
 
     @classmethod
     def from_config(cls, cfg):
-        from taper.kinematic import SparseToDense
+        from mtpgr.kinematic import SparseToDense
         s2d = SparseToDense.from_config(cfg)
         heights = s2d.get_dense_id_height_map()
         edges = s2d.get_dense_edges()
-        instance = TAPER(edges, heights)
+        instance = MTPGR(edges, heights)
         return instance

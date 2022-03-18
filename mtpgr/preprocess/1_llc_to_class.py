@@ -3,7 +3,7 @@ from pathlib import Path
 import json5
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from taper.config import get_cfg_defaults
+from mtpgr.config import get_cfg_defaults
 
 
 def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
@@ -43,7 +43,7 @@ def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
     (Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR).mkdir(exist_ok=True)
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
     videos = videos.glob('*.mp4')

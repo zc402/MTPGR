@@ -3,7 +3,7 @@ from multi_person_tracker import MPT
 from pathlib import Path
 import torch
 import pickle
-from taper.config import get_cfg_defaults
+from mtpgr.config import get_cfg_defaults
 
 
 def to_track(image_folder: Path, save_path: Path):
@@ -32,7 +32,7 @@ def to_track(image_folder: Path, save_path: Path):
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
 
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
     assert img_root.is_dir(), f'{img_root.absolute()} not found.'

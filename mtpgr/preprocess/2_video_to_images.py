@@ -1,6 +1,6 @@
 import cv2
 from pathlib import Path
-from taper.config import get_cfg_defaults
+from mtpgr.config import get_cfg_defaults
 
 
 def video2images(video: Path, img_folder: Path):
@@ -26,7 +26,7 @@ def video2images(video: Path, img_folder: Path):
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
     videos = videos.glob('*.mp4')
     # img_root: The folder containing '.images' folders

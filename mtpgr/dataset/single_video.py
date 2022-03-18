@@ -64,7 +64,7 @@ class SingleVideo(Dataset):
 
     @classmethod
     def from_config(cls, cfg):
-        from taper.kinematic import SparseToDense
+        from mtpgr.kinematic import SparseToDense
 
         s2d = SparseToDense.from_config(cfg)
         filter = s2d.get_s2d_indices()

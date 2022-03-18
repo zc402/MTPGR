@@ -2,8 +2,8 @@
 一层时空图卷积，先调用gcn，再调用tcn
 """
 from torch import nn
-from taper.network.subnet.layers.spatial_conv_layer import GCN
-from taper.network.subnet.layers.temporal_conv_layer import TCN
+from mtpgr.network.subnet.layers.spatial_conv_layer import GCN
+from mtpgr.network.subnet.layers.temporal_conv_layer import TCN
 
 
 class STLayer(nn.Module):

@@ -2,4 +2,4 @@ DATASET:
   SELECT: ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221', '5566', '5568', '5570']
 MODEL:
   CLIP_LEN: 300
-  MTPGR_CKPT: 'mtpgr_cam.ckpt'
+  MTPGR_CKPT: 'mtpgr_no_cam.ckpt'

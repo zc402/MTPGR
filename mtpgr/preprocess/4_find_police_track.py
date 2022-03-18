@@ -6,7 +6,7 @@ import pickle
 from pathlib import Path
 import logging
 import numpy as np
-from taper.config import get_cfg_defaults
+from mtpgr.config import get_cfg_defaults
 
 
 log = logging.getLogger('check_track')
@@ -72,7 +72,7 @@ def find_concat_police_tracks(track_mul: Path, save_path: Path):
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found, check working directory (./TAPER expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
 
     track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     assert(track_folder.is_dir())

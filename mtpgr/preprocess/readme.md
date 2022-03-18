@@ -1,5 +1,7 @@
 # The dataset production instruction.
 
+# TODO: This file needs updates
+
 Follow this instruction to record and annotate a custom dataset. 
 
 1. Record the gesture video.

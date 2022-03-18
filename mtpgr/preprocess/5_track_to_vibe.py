@@ -3,7 +3,7 @@ from pathlib import Path
 from vibe.rt import RtVibe
 import cv2
 
-from taper.config import get_cfg_defaults
+from mtpgr.config import get_cfg_defaults
 import torch
 import numpy as np
 from tqdm import tqdm
@@ -65,7 +65,7 @@ def tracking_to_vibe(image_folder: Path,
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'TAPER/data not found. Check current working directory, expect "./TAPER"'
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Check current working directory, expect "./MTPGR"'
     # track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     # tracks = track_folder.glob('*')
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
