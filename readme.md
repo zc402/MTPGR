@@ -8,9 +8,9 @@
 
 **(Corresponding downloads are under preparation)**
 
-1. Download [vibe_data](http://), save into ./data/vibe_data.
+1. Download [vibe_data](https://drive.google.com/file/d/12D5lLbhpaTVW-31N5NLj30_mDF1rHWbJ/view?usp=sharing), save into ./data/vibe_data.
 
-2. Download [four-directional police gesture dataset](http://), save into ./data/police_gesture_v2
+2. Download [four-directional police gesture dataset](https://drive.google.com/file/d/17fav_gvVtdJm9l6n36eue4DmljI6yT1V/view?usp=sharing), extract into ./data/police_gesture_v2
 
 3. Download [MTPGR checkpoints](http://), save into ./data/checkpoints
 
@@ -24,6 +24,20 @@
     - police_gesture_v2     // Four-directional police gesture dataset
     - checkpoints           // checkpoints for MTPGR
 ```
+
+### PyCharm setup
+Open the "MTPGR" folder as the project folder, the PYTHONPATH should be set by PyCharm into project folder.
+
+### VS code setup
+
+Open the "MTPGR" folder as the project folder, and add following lines into launch.json to set PYTHONPATH
+```
+"cwd": "${workspaceFolder}",
+"env": {"PYTHONPATH": "${cwd}"}
+```
+
+### Run from terminal
+Set PYTHONPATH environment variable as "(your path)/MTPGR".
 
 4. Install PyTorch environments
 ```
