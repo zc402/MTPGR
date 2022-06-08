@@ -4,15 +4,13 @@
     <img src="docs/pipeline.png">
 </p>
 
-## Install
-
-**(Corresponding downloads are under preparation)**
+## Installation
 
 1. Download [vibe_data](https://drive.google.com/file/d/12D5lLbhpaTVW-31N5NLj30_mDF1rHWbJ/view?usp=sharing), save into ./data/vibe_data.
 
 2. Download [four-directional police gesture dataset](https://drive.google.com/file/d/17fav_gvVtdJm9l6n36eue4DmljI6yT1V/view?usp=sharing), extract into ./data/police_gesture_v2
 
-3. Download [MTPGR checkpoints](http://), save into ./data/checkpoints
+3. Download [MTPGR checkpoints(Under preparation)](http://), save into ./data/checkpoints
 
 ### Expected file structure
 
@@ -82,6 +80,3 @@ python ./train.py
 
 **TODO: Add explanation for different configs**
 
-## The four-directional police gesture dataset
-
-** under preparation **
