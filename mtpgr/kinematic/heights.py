@@ -21,7 +21,8 @@ class Heights:
             ['OP RWrist', 'OP LWrist'],
             ['OP RElbow', 'OP LElbow'],
             ['OP RShoulder', 'OP LShoulder'],
-            ['OP Neck']
+            ['OP Neck'],
+            ['OP Nose']
         ]
 
         if use_cam_pose:

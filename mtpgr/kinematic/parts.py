@@ -1,8 +1,11 @@
-from vibe.models.smpl import JOINT_MAP
+from vibe.models.smpl import JOINT_NAMES
 
 class Parts:
     def __init__(self, use_cam_pose: bool):
-        self.name_id_map = JOINT_MAP  # {part_name: part_idx}
+        """
+        SMPL 3D joints mapping uses the array index of JOINT_NAMES, not JOINT_MAP.
+        """
+        self.name_id_map = {name: idx for idx, name in enumerate(JOINT_NAMES)}  # {part_name: part_idx}
         if use_cam_pose:
             self.name_id_map.update({'PRED_CAM': -1})
 

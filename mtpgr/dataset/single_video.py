@@ -67,7 +67,7 @@ class SingleVideo(Dataset):
         from mtpgr.kinematic import SparseToDense
 
         s2d = SparseToDense.from_config(cfg)
-        filter = s2d.get_s2d_indices()
+        filter = s2d.get_s2d_indices()  # Sparse indices of each joint. Used to extract dense coordinates.
         use_cam = cfg.MODEL.USE_CAM_POSE
 
         def new_initializer(vibe_path, ges_label_path):

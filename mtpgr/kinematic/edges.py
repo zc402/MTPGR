@@ -16,6 +16,7 @@ class Edges:
         'OP RElbow', 'OP RWrist',  # 右小臂
         'OP LElbow', 'OP LWrist',  # 左小臂
 
+        'OP Nose', 'OP Neck',  # 头
         'OP Neck', 'OP MidHip',  # 躯干
 
         'OP MidHip', 'OP RHip',  # 右跨
@@ -30,7 +31,7 @@ class Edges:
 
     def __init__(self, pname_id_map: dict, use_cam_pose: bool):
         if use_cam_pose:
-            self._edges_name.extend(['OP MidHip', 'PRED_CAM'])
+            self._edges_name.extend(['OP Neck', 'PRED_CAM'])
 
         self.edges = list(map(pname_id_map.get, self._edges_name))  # edge_list[part_idx]
         self.edges = np.array(self.edges).reshape((-1, 2))  # part_id array of shape (num_edges, 2)

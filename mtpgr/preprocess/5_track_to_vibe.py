@@ -28,9 +28,10 @@ class Track2Vibe(RtVibe):
         return track_res
 
 
-def tracking_to_vibe(image_folder: Path,
+def convert_trace_to_vibe(image_folder: Path,
                      track_file: Path,
-                     save_path: Path):
+                     save_path: Path,
+                     render: bool = True):
 
     assert image_folder.is_dir()
     assert track_file.is_file()
@@ -39,7 +40,7 @@ def tracking_to_vibe(image_folder: Path,
         track_res = pickle.load(f)
 
     vibe = Track2Vibe()
-    vibe.render = False
+    vibe.render = render
 
     images = image_folder.glob('*.jpg')
     # {frame_num: image_path}
@@ -81,6 +82,6 @@ if __name__ == '__main__':
         if False: #save_path.is_file():
             print(f'{save_path.absolute()} already exists')
         else:
-            tracking_to_vibe(img_folder, track, save_path)
+            convert_trace_to_vibe(img_folder, track, save_path)
 
 

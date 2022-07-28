@@ -28,7 +28,7 @@ if __name__ == '__main__':
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
-    videos = videos.glob('*.mp4')
+    videos = videos.glob('*.m4v')
     # img_root: The folder containing '.images' folders
     img_root = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.IMG_DIR
     img_root.mkdir(exist_ok=True)
