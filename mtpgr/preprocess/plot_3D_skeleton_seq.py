@@ -62,6 +62,7 @@ ax.set_zlim(-0.75, 1.25)
 ax.set_xlabel('x')
 ax.set_ylabel('y')
 ax.set_zlabel('z')
+ax.axis('off')
 
 frame = 2000
 points1, edges1 = read_vibe_frame(frame, offset=0.2)

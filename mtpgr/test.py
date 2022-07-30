@@ -20,6 +20,7 @@ class Tester():
         self.predictor.post_step = self.post_step
 
         self.pred_stream = []
+        self.pred_TC_stream = []
         self.label_stream = []
 
         self.step = 1
@@ -32,9 +33,12 @@ class Tester():
         #     self.sliding_add(self.cfg, pred_stream, label_stream, num_frame, pred_T, label_T)
         # self.post_prediction(self.cfg, pred_stream, label_stream)
 
-    def post_step(self, class_TC, label_T):
+    def post_step(
+        self, 
+        class_TC,  # predicted score (float), shape:(time, confidence_score)
+        label_T,  # true class (int)
+        ):
 
-        # sliding add results to list
         class_TC = class_TC.cpu()
         class_T = torch.argmax(class_TC, dim=-1)
         class_T = class_T.view([-1])
@@ -42,15 +46,16 @@ class Tester():
         label_T = label_T.view([-1])
 
         # To simulate the sliding window, only the last one result counts. except the beginning.
-        if len(self.pred_stream) == 0:
+        if len(self.pred_stream) == 0:  # At the beginning, append (temporal_length) frames
             self.pred_stream.extend(class_T.tolist())
-        else:
-            self.pred_stream.append(class_T.tolist()[-1])  # Temporally last result in GCN
-
-        if len(self.label_stream) == 0:
+            self.pred_TC_stream.extend(class_TC.tolist())
             self.label_stream.extend(label_T.tolist())
-        else:
+        else:  # At the middle, only append last frame
+            self.pred_stream.append(class_T.tolist()[-1])  # Temporally last result in GCN
+            self.pred_TC_stream.append(class_TC.tolist()[-1])
             self.label_stream.append(label_T.tolist()[-1])
+            
+            
 
         plot = False  # Graph of predictions and labels
 
@@ -76,7 +81,11 @@ class Tester():
         save_path.parent.mkdir(exist_ok=True)
 
         with save_path.open('wb') as f:
-            pickle.dump((self.pred_stream, self.label_stream), f)
+            pickle.dump({
+                'pred_T':self.pred_stream,
+                'pred_TC':self.pred_TC_stream,
+                'label_T': self.label_stream
+                }, f)
 
     @classmethod
     def _data_loader(cls, cfg):  # Dataloader for validate
