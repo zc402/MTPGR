@@ -10,7 +10,7 @@ _C.DATASET = CN()  # Raw dataset
 _C.DATASET.PGDS2_DIR = 'police_gesture_v2'  # Root folder of pgdv2
 _C.DATASET.VIDEO_DIR = 'video'  # '.mp4' videos
 _C.DATASET.LLC_DIR = 'label_timestamp'  # '-proj.llc' gesture start and end timestamps annotated with losslesscut
-_C.DATASET.SELECT = ['0000']  # Select videos
+_C.DATASET.VIDEOS = ['0000']  # Name of videos that dataloader will load 
 
 _C.GENDATA = CN()  # Preprocessed generated data
 
@@ -25,7 +25,7 @@ _C.MODEL = CN()  # Network configs and save paths
 _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
 _C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
-_C.MODEL.USE_CAM_POSE = True  # Add camera pose to joint features
+_C.MODEL.USE_CAMERA_POSE = True  # Add camera pose to joint features
 _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 

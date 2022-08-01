@@ -43,7 +43,7 @@ class Edges:
     def from_config(cls, cfg):
         from .parts import Parts
         parts = Parts.from_config(cfg)
-        return Edges(parts.get_name_id_map(), cfg.MODEL.USE_CAM_POSE)
+        return Edges(parts.get_name_id_map(), cfg.MODEL.USE_CAMERA_POSE)
 
 
 

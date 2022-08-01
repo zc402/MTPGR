@@ -55,4 +55,4 @@ class Heights:
     def from_config(cls, cfg):
         from .parts import Parts
         parts = Parts.from_config(cfg)
-        return Heights(parts.get_name_id_map(), cfg.MODEL.USE_CAM_POSE)
+        return Heights(parts.get_name_id_map(), cfg.MODEL.USE_CAMERA_POSE)

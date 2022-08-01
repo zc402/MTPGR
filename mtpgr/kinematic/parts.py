@@ -14,4 +14,4 @@ class Parts:
 
     @classmethod
     def from_config(cls, cfg):
-        return Parts(cfg.MODEL.USE_CAM_POSE)
+        return Parts(cfg.MODEL.USE_CAMERA_POSE)

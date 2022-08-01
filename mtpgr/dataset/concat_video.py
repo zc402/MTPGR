@@ -38,7 +38,7 @@ class ConcatVideo(Dataset):
         from pathlib import Path
         from .single_video import SingleVideo
 
-        names = cfg.DATASET.SELECT
+        names = cfg.DATASET.VIDEOS
         # Construct paths
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
         vibe_list = [vibe_folder / (name + '.pkl') for name in names]
