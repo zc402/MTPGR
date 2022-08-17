@@ -74,5 +74,7 @@ class Trainer:
 
 if __name__ == '__main__':
     train_cfg = get_cfg_defaults()
-    train_cfg.merge_from_file(Path('configs', 'train.yaml'))
+    # train_cfg.merge_from_file(Path('configs', 'train.yaml'))
+    train_cfg.merge_from_file(Path('configs', 'train_no_spatial_edges.yaml'))
+
     Trainer.from_config(train_cfg).train()

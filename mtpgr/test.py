@@ -102,5 +102,5 @@ class Tester():
 
 if __name__ == '__main__':
     val_cfg = get_cfg_defaults()
-    val_cfg.merge_from_file(Path('configs', 'val.yaml'))
+    val_cfg.merge_from_file(Path('configs', 'test_no_spatial_edges.yaml'))
     Tester.from_config(val_cfg).val()

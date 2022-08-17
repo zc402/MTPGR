@@ -1,6 +1,7 @@
 """
 Spatially connected joints
 """
+from typing import List
 import numpy as np
 
 
@@ -29,9 +30,11 @@ class Edges:
         'OP LKnee', 'OP LAnkle',
     ]
 
-    def __init__(self, pname_id_map: dict, use_cam_pose: bool):
-        if use_cam_pose:
+    def __init__(self, pname_id_map: dict, use_cam_pose: bool, no_spatial_edges: bool=False):
+        if use_cam_pose:  # Use the camera pose as a vertice
             self._edges_name.extend(['OP Neck', 'PRED_CAM'])
+        if no_spatial_edges:  # For ablation study usage
+            self._edge_name = [('OP Nose', 'OP Neck')]
 
         self.edges = list(map(pname_id_map.get, self._edges_name))  # edge_list[part_idx]
         self.edges = np.array(self.edges).reshape((-1, 2))  # part_id array of shape (num_edges, 2)
@@ -43,6 +46,8 @@ class Edges:
     def from_config(cls, cfg):
         from .parts import Parts
         parts = Parts.from_config(cfg)
+        if cfg.MODEL.NO_SPATIAL_EDGES:
+            return Edges(parts.get_name_id_map(), False, True)
         return Edges(parts.get_name_id_map(), cfg.MODEL.USE_CAMERA_POSE)
 
 
