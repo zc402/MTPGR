@@ -9,8 +9,15 @@ _C.DATASET = CN()  # Raw dataset
 
 _C.DATASET.PGDS2_DIR = 'police_gesture_v2'  # Root folder of pgdv2
 _C.DATASET.VIDEO_DIR = 'video'  # '.mp4' videos
-_C.DATASET.LLC_DIR = 'label_timestamp'  # '-proj.llc' gesture start and end timestamps annotated with losslesscut
-_C.DATASET.VIDEOS = ['0000']  # Name of videos that dataloader will load 
+_C.DATASET.GESTURE_LLC_DIR = 'label_gesture_timestamp'  # '-proj.llc' gesture start and end timestamps annotated with losslesscut
+_C.DATASET.ORIENTATION_LLC_DIR = 'label_orientation_timestamp'  # losslesscut annotated human body orientation label
+
+# Videos that dataloader loads for training (to speed up, the preprocessed skeleton sequence is loaded instead)
+_C.DATASET.TRAIN_VIDEOS = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220', '4K9A0221', '5566', '5568', '5570']
+# Videos that dataloader loads for testing
+_C.DATASET.TEST_VIDEOS = ['4K9A0222', '4K9A0223', '4K9A0224', '4K9A0226', '4K9A0227', '5571', '5573']
+# _C.DATASET.VIDEOS = ['0000']  # Name of videos that dataloader will load 
+_C.DATASET.MODE = "TRAIN"  # TRAIN / TEST
 
 _C.GENDATA = CN()  # Preprocessed generated data
 
@@ -30,7 +37,7 @@ _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 _C.MODEL.NO_SPATIAL_EDGES = False  # No spatial edges on the graph, for ablation study.
 
-_C.TRAIN = CN()  # Training
+_C.OUTPUT = 'output.pkl'  # Test result output
 
 # _C.TRAIN.CLIP_LEN = 300
 # _C.TRAIN.BATCH_SIZE = 10

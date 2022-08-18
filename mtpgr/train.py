@@ -73,8 +73,10 @@ class Trainer:
     #     return logger
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     train_cfg = get_cfg_defaults()
-    # train_cfg.merge_from_file(Path('configs', 'train.yaml'))
-    train_cfg.merge_from_file(Path('configs', 'train_no_spatial_edges.yaml'))
+    train_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
+    # train_cfg.merge_from_file(Path('configs', 'debug.yaml'))
+    # train_cfg.merge_from_file(Path('configs', 'train_no_spatial_edges.yaml'))
 
     Trainer.from_config(train_cfg).train()

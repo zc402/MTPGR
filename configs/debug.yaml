@@ -1,0 +1,7 @@
+# Load a few data for debugging
+DATASET:
+  TRAIN_VIDEOS: ['5570']
+MODEL:
+  CLIP_LEN: 300
+  USE_CAMERA_POSE: True
+  MTPGR_CKPT: '_debug.ckpt'

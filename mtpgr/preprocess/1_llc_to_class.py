@@ -49,7 +49,7 @@ if __name__ == '__main__':
     videos = videos.glob('*.mp4')
     for video in videos:
         print(f'Processing: "{video}"')
-        llc = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.LLC_DIR / (video.stem + '-proj.llc')
+        llc = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.GESTURE_LLC_DIR / (video.stem + '-proj.llc')
         output = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR / (video.stem + '.json5')
         llc_to_class(video, llc, output, False)
         print(f'Timestamp label saved to {output.absolute()}')

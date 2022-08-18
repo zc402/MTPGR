@@ -1,5 +1,5 @@
 from typing import List, Dict
-
+import logging
 from torch.utils.data import Dataset, ConcatDataset
 import numpy as np
 
@@ -38,7 +38,15 @@ class ConcatVideo(Dataset):
         from pathlib import Path
         from .single_video import SingleVideo
 
-        names = cfg.DATASET.VIDEOS
+        if cfg.DATASET.MODE == "TRAIN":
+            names = cfg.DATASET.TRAIN_VIDEOS
+            logging.info("Load dataset for TRAINING")
+            
+        elif cfg.DATASET.MODE == "TEST":
+            names = cfg.DATASET.TEST_VIDEOS
+            logging.info("Load dataset for TESTING")
+        else:
+            raise NotImplementedError()
         # Construct paths
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
         vibe_list = [vibe_folder / (name + '.pkl') for name in names]

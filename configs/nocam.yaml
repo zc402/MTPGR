@@ -1,0 +1,7 @@
+DATASET:
+  MODE: "TRAIN"
+MODEL:
+  CLIP_LEN: 300
+  USE_CAMERA_POSE: False
+  MTPGR_CKPT: 'no_cam.ckpt'
+OUTPUT: "output_no_cam.pkl"

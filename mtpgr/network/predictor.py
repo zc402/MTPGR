@@ -37,18 +37,18 @@ class Predictor:
     def _load_ckpt(model, ckpt, device):
 
         if ckpt.is_file():
-            print("Resume from previous ckeckpoint")
+            logging.info("Checkpoint found. Resume from previous ckeckpoint")
             ckpt = torch.load(ckpt)
             model.load_state_dict(ckpt)
         else:
-            print("Initialize random model parameters.")
+            logging.info("Checkpoint not found. Initialize random model parameters.")
             ckpt.parent.mkdir(exist_ok=True)
         model.to(device)
         return model
 
     def save_ckpt(self):
         torch.save(self.model.state_dict(), self.ckpt)
-        print('Model save')
+        logging.info('Model saved')
 
     @classmethod
     def from_config(cls, cfg, data_loader):

@@ -1,3 +1,4 @@
+import logging
 import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -14,8 +15,14 @@ from mtpgr.network.predictor import Predictor
 
 
 class Tester():
-    def __init__(self, predictor):
+    def __init__(self, predictor, output_name):
+        """
+        Args:
+            predictor: Includes dataloader and neural network
+            output_name: Filename for saving prediction result
+        """
         self.predictor = predictor
+        self.output_name = output_name
         self.predictor.model.eval()
         self.predictor.post_step = self.post_step
 
@@ -30,7 +37,7 @@ class Tester():
         self.predictor.run_epoch()
         self.post_epoch()
 
-        #     self.sliding_add(self.cfg, pred_stream, label_stream, num_frame, pred_T, label_T)
+        # self.sliding_add(self.cfg, pred_stream, label_stream, num_frame, pred_T, label_T)
         # self.post_prediction(self.cfg, pred_stream, label_stream)
 
     def post_step(
@@ -77,7 +84,7 @@ class Tester():
         acc = correct.astype(np.float32).mean()
         print("Total Frame: {}, Accuracy: {:.2f}".format(len(self.pred_stream), acc))
 
-        save_path = Path('output') / 'j14_nocam_cls8' / 'result.pkl'
+        save_path = Path('output') / self.output_name
         save_path.parent.mkdir(exist_ok=True)
 
         with save_path.open('wb') as f:
@@ -96,11 +103,13 @@ class Tester():
     @classmethod
     def from_config(cls, cfg):
         predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
-        instance = Tester(predictor)
+        instance = Tester(predictor, cfg.OUTPUT)
         return instance
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.DEBUG)
     val_cfg = get_cfg_defaults()
-    val_cfg.merge_from_file(Path('configs', 'test_no_spatial_edges.yaml'))
+    val_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
+    val_cfg.DATASET.MODE = "TEST"
     Tester.from_config(val_cfg).val()

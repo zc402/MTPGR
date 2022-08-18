@@ -1,0 +1,5 @@
+MODEL:
+  CLIP_LEN: 1000 #300
+  USE_CAMERA_POSE: True
+  MTPGR_CKPT: 'mtpgr_cam.ckpt'
+OUTPUT: 'output_default.pkl'

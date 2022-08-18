@@ -1,0 +1,8 @@
+DATASET:
+  MODE: "TRAIN"
+MODEL:
+  CLIP_LEN: 300
+  USE_CAMERA_POSE: False
+  MTPGR_CKPT: 'no_spatial_edges.ckpt'
+  NO_SPATIAL_EDGES: True 
+OUTPUT: "output_no_spatial_edges.pkl"
