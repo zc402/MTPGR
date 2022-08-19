@@ -8,7 +8,7 @@ _C.DATA_ROOT = 'data'
 _C.DATASET = CN()  # Raw dataset
 
 _C.DATASET.PGDS2_DIR = 'police_gesture_v2'  # Root folder of pgdv2
-_C.DATASET.VIDEO_DIR = 'video'  # '.mp4' videos
+_C.DATASET.VIDEO_DIR = 'video'  # '.m4v' videos
 _C.DATASET.GESTURE_LLC_DIR = 'label_gesture_timestamp'  # '-proj.llc' gesture start and end timestamps annotated with losslesscut
 _C.DATASET.ORIENTATION_LLC_DIR = 'label_orientation_timestamp'  # losslesscut annotated human body orientation label
 
@@ -21,7 +21,8 @@ _C.DATASET.MODE = "TRAIN"  # TRAIN / TEST
 
 _C.GENDATA = CN()  # Preprocessed generated data
 
-_C.GENDATA.LABEL_DIR = 'label_frame'  # '.json5' labels. essentially a list of gesture class: gesture_cls_list[frames]
+_C.GENDATA.GES_LABEL_DIR = 'label_gesture_frame'  # '.json5' labels. essentially a list of gesture class: gesture_cls_list[frames]
+_C.GENDATA.ORI_LABEL_DIR = 'label_ori_frame'  # per-frame orientation labels
 _C.GENDATA.IMG_DIR = 'images'  # '.jpg' images generated from each video.
 _C.GENDATA.TRACK_DIR = 'track_mul'  # '.npy' raw multi-person track result
 _C.GENDATA.TK_CRCT_DIR = 'track_nms'  # '.npy' person track of the police, generated via 1d non-maximum-suppression from raw tracks

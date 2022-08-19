@@ -3,4 +3,5 @@ data
 __pycache__/
 output/
 *.mp4
+*.m4v
 *.code-workspace

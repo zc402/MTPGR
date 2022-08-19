@@ -43,13 +43,13 @@ def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
 
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
-    (Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR).mkdir(exist_ok=True)
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
+    (Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR).mkdir(exist_ok=True)
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
-    videos = videos.glob('*.mp4')
+    videos = videos.glob('*.m4v')
     for video in videos:
         print(f'Processing: "{video}"')
         llc = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.GESTURE_LLC_DIR / (video.stem + '-proj.llc')
-        output = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.LABEL_DIR / (video.stem + '.json5')
+        output = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR / (video.stem + '.json5')
         llc_to_class(video, llc, output, False)
         print(f'Timestamp label saved to {output.absolute()}')
