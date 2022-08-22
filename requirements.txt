@@ -28,5 +28,5 @@ llvmlite==0.32.1
 git+https://github.com/mattloper/chumpy.git
 git+https://github.com/zc402/yolov3-pytorch.git
 git+https://github.com/zc402/multi-person-tracker.git
-json5
 git+https://github.com/zc402/RT-VIBE.git
+json5

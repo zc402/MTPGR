@@ -51,7 +51,7 @@ class ConcatVideo(Dataset):
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
         vibe_list = [vibe_folder / (name + '.pkl') for name in names]
         label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR
-        label_list = [label_folder / (name + '.json5') for name in names]
+        label_list = [label_folder / (name + '.json') for name in names]
 
         video_dataset_list = [SingleVideo.from_config(cfg)(vibe, label)
                               for vibe, label in zip(vibe_list, label_list)]

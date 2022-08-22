@@ -1,6 +1,7 @@
 import cv2
 from pathlib import Path
-import json5
+import json  # My file saved in json
+import json5  # Only used when loading .llc file
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -82,7 +83,7 @@ def ori_llc_to_frame(video: Path, label: Path, save_path: Path, show: bool = Tru
         plt.show()
 
     with save_path.open('w') as f:
-        json5.dump(class_list, f)
+        json.dump(class_list, f)
     pass
 
 
@@ -108,8 +109,8 @@ if __name__ == '__main__':
         logging.info(f'Now processing: "{video}"')
         # Source .llc path
         source_file = source_folder / (video.stem + '-proj.llc')
-        # Target .json5 path
-        target_file = target_folder / (video.stem + '.json5')
+        # Target .json path
+        target_file = target_folder / (video.stem + '.json')
 
-        ori_llc_to_frame(video, source_file, target_file, True)
+        ori_llc_to_frame(video, source_file, target_file, show=False)
         logging.info(f'Timestamp label saved to {target_file.absolute()}')

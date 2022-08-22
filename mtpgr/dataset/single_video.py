@@ -1,6 +1,6 @@
 from pathlib import Path
 import pickle
-import json5
+import json
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -20,7 +20,7 @@ class SingleVideo(Dataset):
         with vibe_path.open('rb') as f:
             self.vibe = pickle.load(f)
         with gesture_label_path.open('r') as f:
-            self.gesture = json5.load(f)
+            self.gesture = json.load(f)
         # Note that 'vibe' is shorter than 'gesture' due to failed tracks caused by image occlusion.
         # Therefore, the 'frame' in 'vibe' is used as index for 'gesture'
         self.part_filter = part_filter

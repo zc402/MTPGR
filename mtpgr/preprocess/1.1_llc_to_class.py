@@ -1,5 +1,6 @@
 import cv2
 from pathlib import Path
+import json
 import json5
 import matplotlib.pyplot as plt
 from tqdm import tqdm
@@ -8,18 +9,18 @@ from mtpgr.config import get_cfg_defaults
 
 def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
     """
-    Convert losslesscut .llc format (json5) to class-per-frame format (json5)
+    Convert losslesscut .llc format to class-per-frame format (json)
     :param video: path of a videos, used to get FRAME_COUNT
     :param label: path of .llc file corresponding to the video.
-    :param save_path: path of output json5 per-frame label file
+    :param save_path: path of output json per-frame label file
     :param show: display labels as a plot
     :return:
     """
     cap = cv2.VideoCapture(str(video))
     with label.open() as f:
         label_json = json5.load(f)
-    duration = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    cls_list = [0 for i in range(duration)]
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # Total frames
+    cls_list = [0 for i in range(frame_count)]
     default_num_ges_to_cls = list(range(1, 9)) * 8  # [1,2,...,8,1,2,...]
     for num_ges, seg in enumerate(tqdm(label_json['cutSegments'])):
         # seg: {'start': 1.0113, 'end': 3.4433}
@@ -37,7 +38,7 @@ def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
         plt.show()
 
     with save_path.open('w') as f:
-        json5.dump(cls_list, f)
+        json.dump(cls_list, f)
     pass
 
 
@@ -50,6 +51,6 @@ if __name__ == '__main__':
     for video in videos:
         print(f'Processing: "{video}"')
         llc = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.GESTURE_LLC_DIR / (video.stem + '-proj.llc')
-        output = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR / (video.stem + '.json5')
+        output = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR / (video.stem + '.json')
         llc_to_class(video, llc, output, False)
         print(f'Timestamp label saved to {output.absolute()}')
