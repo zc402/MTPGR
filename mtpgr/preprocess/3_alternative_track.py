@@ -98,10 +98,10 @@ def to_trace(video_path: Path, save_path: Path):
     assert video_path.is_file()
 
     if torch.cuda.is_available():
-        logging.debug("CUDA available")
+        logger.debug("CUDA available")
         device = torch.device('cuda')
     else:
-        logging.warning("CUDA not available!")
+        logger.warning("CUDA not available!")
         torch.device('cpu')
 
     mpt = MPT_Iterate(
@@ -119,12 +119,13 @@ def to_trace(video_path: Path, save_path: Path):
 
 if __name__ == '__main__':
     logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
     c_handler = logging.StreamHandler()
     c_handler.setLevel(logging.DEBUG)
     c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
     c_handler.setFormatter(c_format)
     logger.addHandler(c_handler)
-    
+    logger.info("Tracking people in dataset...")
 
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
