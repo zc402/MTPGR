@@ -50,7 +50,14 @@ class ConcatVideo(Dataset):
         # Construct paths
         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
         vibe_list = [vibe_folder / (name + '.pkl') for name in names]
-        label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR
+        # Choose ground truth 
+        if cfg.DATASET.GROUND_TRUTH == "33":
+            label_folder_name = cfg.GENDATA.COMBINE_LABEL_DIR
+        elif cfg.DATASET.GROUND_TRUTH == "9":
+            label_folder_name = cfg.GENDATA.GES_LABEL_DIR
+        else:
+            raise NotImplementedError(f"Unsupported ground truth config: {cfg.DATASET.GROUND_TRUTH}")
+        label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / label_folder_name
         label_list = [label_folder / (name + '.json') for name in names]
 
         video_dataset_list = [SingleVideo.from_config(cfg)(vibe, label)

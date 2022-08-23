@@ -1,0 +1,5 @@
+MODEL:
+  MTPGR_CKPT: 'ignore_orientation.ckpt'
+DATASET:
+  GROUND_TRUTH: "8"
+OUTPUT: 'ignore_orientation.pkl'
