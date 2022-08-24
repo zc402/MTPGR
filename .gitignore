@@ -5,3 +5,4 @@ output/
 *.mp4
 *.m4v
 *.code-workspace
+target/
