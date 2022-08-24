@@ -1,5 +1,5 @@
 from inspect import currentframe
-import json
+import pickle
 import cv2  # unused, but must be imported, otherwise the MPT raises segment fault
 from multi_person_tracker import MPT
 from pathlib import Path
@@ -102,7 +102,7 @@ def to_trace(video_path: Path, save_path: Path):
         device = torch.device('cuda')
     else:
         logger.warning("CUDA not available!")
-        torch.device('cpu')
+        device = torch.device('cpu')
 
     mpt = MPT_Iterate(
         device=device,
@@ -111,10 +111,13 @@ def to_trace(video_path: Path, save_path: Path):
         detector_type='yolo',
         output_format='dict',
     )
-    traces = mpt.run_on_video(video_path)
 
-    with save_path.open('w') as f:
-        json.dump(traces, f)
+    tracking_result = mpt.run_on_video(video_path)
+
+    with save_path.open('wb') as f:
+        pickle.dump(tracking_result, f)
+    
+    # logger.debug(tracking_result)
 
 
 if __name__ == '__main__':
@@ -128,14 +131,19 @@ if __name__ == '__main__':
     logger.info("Tracking people in dataset...")
 
     cfg = get_cfg_defaults()
+
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
 
     videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
+    # videos = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / "debug"
     videos = videos.glob('*.m4v')
 
     target_folder: Path = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     target_folder.mkdir(exist_ok=True)
     for video in videos:
         logger.info(f"Processing file {video.stem}")
-        target_path = target_folder / (video.stem + ".json")
-        to_trace(video, target_path)
+        target_path = target_folder / (video.stem + ".pkl")
+        if target_path.is_file():
+            logger.info(f'track file {video.stem} already exists. Ignored.')
+        else:
+            to_trace(video, target_path)

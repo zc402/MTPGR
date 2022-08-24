@@ -1,6 +1,6 @@
 # Load a few data for debugging
 DATASET:
-  TRAIN_VIDEOS: ['5570']
+  TRAIN_VIDEOS: ['_debug']
 MODEL:
   CLIP_LEN: 300
   USE_CAMERA_POSE: True
