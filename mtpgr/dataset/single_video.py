@@ -21,8 +21,9 @@ class SingleVideo(Dataset):
             self.vibe = pickle.load(f)
         with gesture_label_path.open('r') as f:
             self.gesture = json.load(f)
-        # Note that 'vibe' is shorter than 'gesture' due to failed tracks caused by image occlusion.
-        # Therefore, the 'frame' in 'vibe' is used as index for 'gesture'
+        
+        # Note that the length of 'vibe result' is shorter than 'gesture label' due to untracked frames (occlusion etc.).
+        # Therefore, there is a 'frame' key in vibe result, which will be used to skip these untracked frames.
         self.part_filter = part_filter
         self.use_cam_pose = use_cam_pose
 

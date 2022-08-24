@@ -53,23 +53,25 @@ def convert_trace_to_vibe(video_file: Path,
 
     vibe_results = []
     vibe = RtVibeExtTrace(render=render)
-
+    current_trace_frame = 0  # Trace has fewer frames than video, because sometimes the police is occludded and not tracked.
     for i in tqdm(range(frame_count)):
+        # i: current video frame
         ret, image = cap.read()
         if not ret:
             logger.warning(f"cv2 video capture returns false at frame {i}")
-        # i: current frame
         if i not in track_res['frames']:
-            logger.debug(f"frame {i} not in tracking result")
+            logger.debug(f"Frame {i} skipped. Reason: no frame {i} in trace data")
         else:
             # trace_wrap is used to suit the vibe input format
+
             trace_wrap = {1: {  # num 1 is the person id, set in "find_police_trace". 
-                'bbox': track_res['bbox'][i:i+1],  # No dimension reduction
-                'frames': track_res['frames'][i:i+1]
+                'bbox': track_res['bbox'][current_trace_frame:current_trace_frame+1],  # No dimension reduction
+                'frames': track_res['frames'][current_trace_frame:current_trace_frame+1]
             }}
             vibe_output = vibe.from_img_and_trace(image, trace_wrap)
             del vibe_output[1]['verts']  # The vertices are too large. Currently not used.
             vibe_results.append(vibe_output)
+            current_trace_frame = current_trace_frame + 1  # Only increases if the frame was tracked.
 
     cap.release()
 
@@ -81,8 +83,7 @@ def convert_trace_to_vibe(video_file: Path,
 if __name__ == '__main__':
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Check current working directory, expect "./MTPGR"'
-    # track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
-    # tracks = track_folder.glob('*')
+    logger.info("Running VIBE on videos")
 
     trace_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACE_SINGLE_DIR
     assert trace_folder.is_dir()
@@ -95,9 +96,10 @@ if __name__ == '__main__':
     for video in videos:
         trace_file = trace_folder / (video.stem + '.pkl')
         target_path = vibe_folder / (video.stem + '.pkl')
-        # if False: #save_path.is_file():
-        #     print(f'{target_path.absolute()} already exists')
-        # else:
-        convert_trace_to_vibe(video, trace_file, target_path)
+        if target_path.is_file():
+            logger.info(f'Skipping {video.stem}. Target already exists.')
+        else:
+            logger.info(f'Processing {video.stem}...')
+            convert_trace_to_vibe(video, trace_file, target_path, render=False)
 
 
