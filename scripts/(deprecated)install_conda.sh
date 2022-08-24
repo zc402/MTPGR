@@ -11,7 +11,6 @@ conda activate $CONDA_ENV_NAME
 which python
 which pip
 
-conda install pytorch==1.10.0 torchvision==0.11.0 torchaudio==0.10.0 cudatoolkit=11.3 -c pytorch -c conda-forge
-# pip install numpy==1.17.5 torch==1.4.0 torchvision==0.5.0
+pip install numpy==1.17.5 torch==1.4.0 torchvision==0.5.0
 pip install git+https://github.com/giacaglia/pytube.git --upgrade
 pip install -r requirements.txt

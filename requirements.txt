@@ -26,4 +26,5 @@ git+https://github.com/mattloper/chumpy.git
 git+https://github.com/zc402/yolov3-pytorch.git
 git+https://github.com/zc402/multi-person-tracker.git
 git+https://github.com/zc402/RT-VIBE.git
+git+https://github.com/giacaglia/pytube.git
 json5

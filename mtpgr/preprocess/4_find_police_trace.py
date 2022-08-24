@@ -8,11 +8,6 @@ import logging
 import numpy as np
 from mtpgr.config import get_cfg_defaults
 
-
-log = logging.getLogger('check_track')
-log.setLevel(logging.INFO)
-
-
 def load_tracking_results(track_file: Path) -> list:
     with track_file.open('rb') as f:
         track = pickle.load(f)
@@ -20,11 +15,11 @@ def load_tracking_results(track_file: Path) -> list:
     track_sort = sorted(track.items(), key=lambda x: len(x[1]['frames']), reverse=True)
     return track_sort
 
-
+# Deprecated
 def is_tracked_every_frame(track_file: Path):
     # Check if tracked frames equal total frames. This indicates a correct tracking result.
 
-    log.info(f"Checking {track_file}")
+    logger.info(f"Checking {track_file}")
     track_sort = load_tracking_results(track_file)
     tracked_len = len(track_sort[0][1]['frames'])
 
@@ -32,9 +27,9 @@ def is_tracked_every_frame(track_file: Path):
     img_num = len(list(image_folder.glob('*.jpg')))
 
     if img_num == tracked_len:
-        log.info('Tracked frames equals to the num of images')
+        logger.info('Tracked frames equals to the num of images')
     else:
-        log.error(f'Incorrect track:{track_file}, {img_num} images, {tracked_len} tracked frames')
+        logger.error(f'Incorrect track:{track_file}, {img_num} images, {tracked_len} tracked frames')
 
 
 def non_maximum_suppression_1d(track_file: Path):
@@ -71,18 +66,28 @@ def find_concat_police_tracks(track_mul: Path, save_path: Path):
 
 
 if __name__ == '__main__':
+
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    c_handler = logging.StreamHandler()
+    c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    c_handler.setFormatter(c_format)
+    logger.addHandler(c_handler)
+    logger.info("Extract the trace of the police")
+
     cfg = get_cfg_defaults()
-    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found, check working directory (./MTPGR expected) '
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
 
-    track_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
-    assert(track_folder.is_dir())
+    trace_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
+    assert(trace_folder.is_dir())
 
-    tracks = track_folder.glob('*')
+    trace_files = trace_folder.glob('*')
 
     track_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
     track_crct_folder.mkdir(exist_ok=True)
 
-    for track in tracks:
-        save_path = track_crct_folder / (track.stem + '.pkl')
-        find_concat_police_tracks(track, save_path)
-        print(f'track saved into {save_path.absolute()}')
+    for trace in trace_files:
+        logger.debug(f'Working on {trace}...')
+        save_path = track_crct_folder / (trace.stem + '.pkl')
+        find_concat_police_tracks(trace, save_path)
+        logger.info(f'Trace saved into {save_path.absolute()}')

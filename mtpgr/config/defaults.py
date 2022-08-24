@@ -27,7 +27,7 @@ _C.GENDATA.ORI_LABEL_DIR = 'label_ori_frame'  # per-frame orientation labels
 _C.GENDATA.COMBINE_LABEL_DIR = 'label_combine_frame'
 _C.GENDATA.IMG_DIR = 'images'  # '.jpg' images generated from each video.
 _C.GENDATA.TRACK_DIR = 'track_mul'  # '.npy' raw multi-person track result
-_C.GENDATA.TK_CRCT_DIR = 'track_nms'  # '.npy' person track of the police, generated via 1d non-maximum-suppression from raw tracks
+_C.GENDATA.TK_CRCT_DIR = 'track_single'  # '.npy' person track of the police, generated with 1d non-maximum-suppression from raw tracks
 _C.GENDATA.VIBE_DIR = 'vibe'  # '.npy' vibe parameters of **TRACKED** frames.
 
 _C.MODEL = CN()  # Network configs and save paths
