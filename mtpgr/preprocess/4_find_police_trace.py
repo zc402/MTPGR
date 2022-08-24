@@ -83,7 +83,7 @@ if __name__ == '__main__':
 
     trace_files = trace_folder.glob('*')
 
-    track_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TK_CRCT_DIR
+    track_crct_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACE_SINGLE_DIR
     track_crct_folder.mkdir(exist_ok=True)
 
     for trace in trace_files:
