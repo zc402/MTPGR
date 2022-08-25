@@ -21,6 +21,7 @@ scikit-video
 opencv-python==4.1.2.30
 llvmlite
 json5
+sklearn
 git+https://github.com/mattloper/chumpy.git
 git+https://github.com/zc402/yolov3-pytorch.git
 git+https://github.com/zc402/multi-person-tracker.git

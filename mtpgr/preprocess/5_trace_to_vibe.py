@@ -81,6 +81,8 @@ def convert_trace_to_vibe(video_file: Path,
 
 
 if __name__ == '__main__':
+    overwrite = True
+    show_render = False
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Check current working directory, expect "./MTPGR"'
     logger.info("Running VIBE on videos")
@@ -96,10 +98,10 @@ if __name__ == '__main__':
     for video in videos:
         trace_file = trace_folder / (video.stem + '.pkl')
         target_path = vibe_folder / (video.stem + '.pkl')
-        if target_path.is_file():
+        if target_path.is_file() and not overwrite:
             logger.info(f'Skipping {video.stem}. Target already exists.')
         else:
             logger.info(f'Processing {video.stem}...')
-            convert_trace_to_vibe(video, trace_file, target_path, render=False)
+            convert_trace_to_vibe(video, trace_file, target_path, render=show_render)
 
 
