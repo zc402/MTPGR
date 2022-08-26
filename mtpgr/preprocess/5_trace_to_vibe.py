@@ -66,8 +66,9 @@ def convert_trace_to_vibe(video_file: Path,
 
             trace_wrap = {1: {  # num 1 is the person id, set in "find_police_trace". 
                 'bbox': track_res['bbox'][current_trace_frame:current_trace_frame+1],  # No dimension reduction
-                'frames': track_res['frames'][current_trace_frame:current_trace_frame+1]
+                'frames': track_res['frames'][current_trace_frame:current_trace_frame+1]  # Video frame
             }}
+            assert track_res['frames'][current_trace_frame] == i, "Track result recorded video frame should equal to manually counted video frame"
             vibe_output = vibe.from_img_and_trace(image, trace_wrap)
             del vibe_output[1]['verts']  # The vertices are too large. Currently not used.
             vibe_results.append(vibe_output)

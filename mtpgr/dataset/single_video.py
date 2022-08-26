@@ -20,10 +20,10 @@ class SingleVideo(Dataset):
         with vibe_path.open('rb') as f:
             self.vibe = pickle.load(f)
         with gesture_label_path.open('r') as f:
-            self.gesture = json.load(f)
+            self.label = json.load(f)  # [0,0,0,1,1,1,0,0,0,...]
         
-        # Note that the length of 'vibe result' is shorter than 'gesture label' due to untracked frames (occlusion etc.).
-        # Therefore, there is a 'frame' key in vibe result, which will be used to skip these untracked frames.
+        # Note that the length of 'vibe result' is shorter than 'label' due to untracked frames (occlusion etc.).
+        # Therefore, the 'frame' key in vibe result is used to skip these untracked frames.
         self.part_filter = part_filter
         self.use_cam_pose = use_cam_pose
 
@@ -34,7 +34,7 @@ class SingleVideo(Dataset):
         vibe_params = self.vibe[index]  # vibe params for 1 frame
         vibe_params = vibe_params.get(1)  # person "1"
         frame_num = vibe_params['frame_ids'][0]  # frame_num is 0-based
-        gesture = self.gesture[frame_num]
+        gesture = self.label[frame_num]
 
         tensor_VC = self._extract_pose_params(vibe_params)
 
