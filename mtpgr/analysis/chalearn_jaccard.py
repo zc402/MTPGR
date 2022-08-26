@@ -41,6 +41,6 @@ if __name__ == "__main__":
     gplist.append(([0, 0, 0], [0, 1, 2]))
     gplist.append(([5, 5, 5], [5, 4, 4]))
     jaccard = ChaLearnJaccard(8).mean_jaccard_index(gplist)
-    print("This is a test")
+    print("Testing ChaLearn Jaccard Index")
     print(jaccard)
     
