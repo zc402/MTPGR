@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from mtpgr.dataset import SingleVideo, ConcatVideo
+from mtpgr.dataset import PGv2VIBESeqDataset, ConcatDataset
 from mtpgr.config import get_cfg_defaults
 
 # joint xy coords -> gcn -> fcn
@@ -96,7 +96,7 @@ class Tester():
 
     @classmethod
     def _data_loader(cls, cfg):  # Dataloader for validate
-        concat_dataset = ConcatVideo.from_config(cfg)
+        concat_dataset = ConcatDataset.from_config(cfg)
         eval_loader = DataLoader(concat_dataset, batch_size=1, shuffle=False, drop_last=False)
         return eval_loader
 
@@ -111,5 +111,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.DEBUG)
     val_cfg = get_cfg_defaults()
     val_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
-    val_cfg.DATASET.MODE = "TEST"
     Tester.from_config(val_cfg).val()

@@ -6,7 +6,7 @@ from torch.nn import CrossEntropyLoss
 import logging
 
 from torch import optim
-from mtpgr.dataset import ConcatVideo
+from mtpgr.dataset import ConcatDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
 

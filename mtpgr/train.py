@@ -7,7 +7,7 @@ import logging
 
 from mtpgr.network.predictor import Predictor
 from torch import optim
-from mtpgr.dataset import ConcatVideo
+from mtpgr.dataset import ConcatDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
 
@@ -54,7 +54,7 @@ class Trainer:
 
     @classmethod
     def _data_loader(cls, cfg):  # Dataloader for training
-        concat_dataset = ConcatVideo.from_config(cfg)
+        concat_dataset = ConcatDataset.from_config(cfg)
         train_loader = DataLoader(concat_dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True, drop_last=True)
         return train_loader
 

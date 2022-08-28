@@ -7,7 +7,7 @@ from torch.utils.data import Dataset
 
 class SingleVideo(Dataset):
     """
-    Load vibe params by video name. (mp4 video not required)
+    Load vibe results (SMPL parameters for each frame) by video name. (mp4 video not required)
     Return continuous vibe params and corresponding gesture labels of shape: 8*4 + 1
     Should not be shuffled
     If dense_indices are provided, only selected params are returned
@@ -15,8 +15,15 @@ class SingleVideo(Dataset):
 
     def __init__(self, vibe_path: Path,
                  gesture_label_path: Path,
-                 part_filter: list,  # List of indices of used parts, like [0, 3, 4, 6,...]. Set None to ignore.
-                 use_cam_pose: bool):  # Concat camera pose to the last of V dim in tensor_VC
+                 part_filter: list,
+                 use_cam_pose: bool):
+        """
+        Args:
+            vibe_path: Path of the vibe output (SMPL-X parameters)
+            gesture_label_path: Path of the labels (json file)
+            part_filter (list): Indices of interested parts. e.g. [0, 3, 4, 6,...]. Set None to use all parts from SMPL-X.
+            use_cam_pose (bool): Concat camera pose to the last of V dim in tensor_VC
+        """
         with vibe_path.open('rb') as f:
             self.vibe = pickle.load(f)
         with gesture_label_path.open('r') as f:
@@ -24,7 +31,7 @@ class SingleVideo(Dataset):
         
         # Note that the length of 'vibe result' is shorter than 'label' due to untracked frames (occlusion etc.).
         # Therefore, the 'frame' key in vibe result is used to skip these untracked frames.
-        self.part_filter = part_filter
+        self.part_filter = part_filter  # SMPL-X part filter
         self.use_cam_pose = use_cam_pose
 
     def __len__(self):
