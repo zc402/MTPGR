@@ -4,9 +4,8 @@ import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
 import logging
-
+from tqdm import tqdm
 from torch import optim
-from mtpgr.dataset import ConcatDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
 
@@ -20,18 +19,26 @@ class Predictor:
         self.device = device
         self.logger = logging.getLogger(__name__)
 
-    def post_step(self, class_TC, label_T):
+    def post_step(self, pred, label):
+        """
+        Shapes:
+            pred: (N*T, C)
+            label: (N*T,)
+        """
         raise NotImplementedError()
 
     def run_epoch(self):
-        for train_data in self.data_loader:
-            tensor_NCTV = train_data['tensor_ctv'].to(self.device)  # Batch is N dim
-            label_NT = train_data['label_t'].to(self.device)  # N,T
+        for batch_data in self.data_loader:
+            kp, ges, ori, combine = batch_data
 
-            class_TC = self.model(tensor_NCTV)  # Out: N*T,C
-            label_T = label_NT.reshape([-1])  # N*T
+            tensor_input = kp.to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
+            tensor_input = torch.permute(tensor_input, (0, 3, 1, 2))
+            tensor_label = combine.to(self.device)  # label shape: (N,T)
 
-            self.post_step(class_TC, label_T)
+            tensor_pred = self.model(tensor_input)  # pred shape: (N*T,C)
+            tensor_label = tensor_label.reshape([-1])  # label shape: (N*T,)
+
+            self.post_step(tensor_pred, tensor_label)
 
     @staticmethod
     def _load_ckpt(model, ckpt, device):

@@ -4,10 +4,10 @@ import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
 import logging
-
+from tqdm import tqdm
 from mtpgr.network.predictor import Predictor
 from torch import optim
-from mtpgr.dataset import ConcatDataset
+from mtpgr.dataset.pgv2_dataset import PGv2TrainDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
 
@@ -24,26 +24,31 @@ class Trainer:
 
         self.step = 1
 
-    def post_step(self, class_TC, label_T):
-        # Cross Entropy, Input: (N*T, C), Target: (N*T).
-        loss_tensor = self.loss(class_TC, label_T)
+    def post_step(self, pred, label):
+        """
+        Shapes:
+            pred: (N*T, C)
+            label: (N*T,)
+        """
+        # Cross Entropy. Args - input: (N*T, C), target: (N*T).
+        loss_tensor = self.loss(pred, label)
         self.opt.zero_grad()
         loss_tensor.backward()
         self.opt.step()
 
         if self.step % 100 == 0:
             print("Step: %d, Loss: %f" % (self.step, loss_tensor.item()))
-            acc = self.acc(class_TC, label_T)
+            acc = self.acc(pred, label)
             print("Accuracy: {:.2f}".format(acc))
 
-        if self.step % 2000 == 0:
+        if self.step % 1000 == 0:
             self.predictor.save_ckpt()
 
         self.step = self.step + 1
 
     def train(self):
-        print("Training ...")
-        for epoch in range(100):
+        print("Training...")
+        for epoch in tqdm(range(200)):
             self.predictor.run_epoch()
 
     @staticmethod
@@ -54,7 +59,7 @@ class Trainer:
 
     @classmethod
     def _data_loader(cls, cfg):  # Dataloader for training
-        concat_dataset = ConcatDataset.from_config(cfg)
+        concat_dataset = PGv2TrainDataset.from_config(cfg)
         train_loader = DataLoader(concat_dataset, batch_size=cfg.MODEL.BATCH_SIZE, shuffle=True, drop_last=True)
         return train_loader
 
@@ -73,7 +78,7 @@ class Trainer:
     #     return logger
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     train_cfg = get_cfg_defaults()
     train_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
     # train_cfg.merge_from_file(Path('configs', 'debug.yaml'))

@@ -13,8 +13,6 @@ class STLayer(nn.Module):
                  num_spatial_labels: int):
         super().__init__()
 
-        self.gcn = GCN(in_channels, out_channels, num_spatial_labels)
-        self.tcn = TCN(out_channels, t_kernel_size=9)
         self.residual = nn.Sequential(
             nn.Conv2d(
                 in_channels,
@@ -23,6 +21,9 @@ class STLayer(nn.Module):
                 stride=(1, 1)),
             nn.BatchNorm2d(out_channels),
         )
+        self.gcn = GCN(in_channels, out_channels, num_spatial_labels)
+        self.tcn = TCN(out_channels, t_kernel_size=9)
+        
         self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x, A):

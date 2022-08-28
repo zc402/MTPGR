@@ -24,9 +24,9 @@ class AdjacencyMatrix:
         
         normalizing_term = self.normalize_digraph(adjacency)
 
-        # A将邻接矩阵拆成3组，分别对应3个高度差标签。3组加在一起后等于邻接矩阵。
+        # A is stacked by 3 adjacency matrix, corresponding to 3 height labels - lower, equal, higher
         # A.shape: (labels, target_vertices, neighbors)
-        A = np.zeros((3, num_nodes, num_nodes))  # 3: number of labels (lower, equal, higher)
+        A = np.zeros((3, num_nodes, num_nodes))
         for root in range(num_nodes):
             for j in range(num_nodes):
                 if adjacency[root, j] == 1:

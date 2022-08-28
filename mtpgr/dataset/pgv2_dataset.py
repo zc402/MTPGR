@@ -32,7 +32,7 @@ class PGv2TrainDataset(Dataset):
 
     def __len__(self):
         """Total number of truncated short sequences"""
-        self.num_sequences
+        return self.num_sequences
     
     def __getitem__(self, index) -> Dict:
         """Return a dict of tensors and labels
@@ -100,3 +100,7 @@ class PGv2TestDataset(Dataset):
         return PGv2TrainDataset(vibe_datasets, cfg.MODEL.CLIP_LEN) 
 
 # PGv2TestDataset.from_config(get_cfg_defaults())[1]
+
+# class Utils:
+#     @staticmethod
+#     def extract_seq_from_batch(seq)

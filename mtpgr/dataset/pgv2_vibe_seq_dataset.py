@@ -36,6 +36,7 @@ class PGv2VIBESeqDataset(Dataset):
             self.ges_label = json.load(f)  # [0,0,0,1,1,1,0,0,0,...]
         with ori_label_path.open('r') as f:
             self.ori_label = json.load(f)
+        self.ori_label = [ord(c) for c in self.ori_label]  # Convert F/L/B/R into ASCII because Pytorch dataloader do not accept char type
         with combine_label_path.open('r') as f:
             self.combine_label_path = json.load(f)
         

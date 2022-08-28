@@ -16,8 +16,8 @@ class MTPGR(nn.Module):
         :param heights: dict {id: height_value}
         """
         super().__init__()
-        in_channels = 3  # TODO: change to 6, 3 for position params, 3 for rotation params ?
-        out_channels = 9  # TODO: 9 or 8*4=32 ?
+        in_channels = 3  # Number of channels, 2 for 2D coords, 3 for 3D coords
+        out_channels = 33  # Number of gesture classes
 
         # Build adj matrix with height layering partitioning strategy
         A = AdjacencyMatrix(edges, heights).get_height_config_adjacency()
