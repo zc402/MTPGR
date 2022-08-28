@@ -2,7 +2,7 @@ from typing import List, Dict
 import logging
 import math
 import torch.utils.data
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 import numpy as np
 from pathlib import Path
 
@@ -46,7 +46,7 @@ class PGv2TrainDataset(Dataset):
         # Is this concat dataset bug still there?
         
         # Shape: [0:truncate_len - frames] [0:4 - labels] [each label...]
-        truncated_seq:np.ndarray = self._cycle(self.concat_dataset, start_frame, end_frame)
+        truncated_seq: np.ndarray = self._cycle(self.concat_dataset, start_frame, end_frame)
 
         # kp, ges, ori, combine = [truncated_seq[:, i] for i in range(4)]
         kp = np.stack([truncated_seq[i, 0] for i in range(truncated_seq.shape[0])])
@@ -65,76 +65,38 @@ class PGv2TrainDataset(Dataset):
 
     @classmethod
     def from_config(cls, cfg):
-        video_names: List[str] = cfg.DATASET.TRAIN_VIDEOS  # Videos for training purpose
+        video_names: List[str] = cfg.DATASET.TRAIN_VIDEOS  # Videos from training set
         vibe_datasets = [PGv2VIBESeqDataset.from_config(cfg)(video_name) for video_name in video_names]
         return PGv2TrainDataset(vibe_datasets, cfg.MODEL.CLIP_LEN) 
 
-PGv2TrainDataset.from_config(get_cfg_defaults())[1]
+# PGv2TrainDataset.from_config(get_cfg_defaults())[1]
 
-# class PGv2TestDataset(Dataset):
-#     """
-#     The test dataset yeilds a full sequence (~10min) when called. Do not support batch_size > 1
-#     """
-#     def __init__(
-#         self, 
-#         seq_datasets: List[PGv2VIBESeqDataset], 
-#         truncate_len: int
-#         ):
+class PGv2TestDataset(Dataset):
+    """
+    The test dataset yeilds a full sequence (~10min) when called. Do not support batch_size > 1
+    """
+    def __init__(
+        self, 
+        seq_datasets: List[PGv2VIBESeqDataset], 
+        ):
+        self.seq_datasets = seq_datasets
 
-# class ConcatDataset(Dataset):
-#     """
-#     Return Clips from concatenated gesture features in GCN input format: N,C,T,V
-#     Should enable shuffle on training
-#     """
-#     def __init__(self, datasets, clip_len: int):
-#         self.clip_len = clip_len
-#         # concat_dataset: batch_size is the length of the clip.
-#         self.concat_dataset = torch.utils.data.ConcatDataset(datasets)
-#         self.num_frames = len(self.concat_dataset)
+    def __len__(self):
+        return len(self.seq_datasets)
 
-#     def __len__(self):
+    def __getitem__(self, index):
+        seq: np.ndarray = self.seq_datasets[index][:]
 
-#         return self.num_frames - self.clip_len
+        kp = np.stack([seq[i, 0] for i in range(seq.shape[0])])
+        ges = np.stack([seq[i, 1] for i in range(seq.shape[0])])
+        ori = np.stack([seq[i, 2] for i in range(seq.shape[0])])
+        combine = np.stack([seq[i, 3] for i in range(seq.shape[0])])
+        return kp, ges, ori, combine
+    
+    @classmethod
+    def from_config(cls, cfg):
+        video_names: List[str] = cfg.DATASET.TEST_VIDEOS  # Videos from test set
+        vibe_datasets = [PGv2VIBESeqDataset.from_config(cfg)(video_name) for video_name in video_names]
+        return PGv2TrainDataset(vibe_datasets, cfg.MODEL.CLIP_LEN) 
 
-#     def __getitem__(self, index):
-#         # Extract a clip from concatenated videos
-#         # Concat dataset do not support slice
-#         clip: List[Dict[str: np.ndarray]] = [self.concat_dataset[x] for x in range(index, index+self.clip_len)]
-
-#         tensor_TVC = [d['tensor_vc'] for d in clip]
-#         tensor_CTV = np.transpose(tensor_TVC, (2, 0, 1))
-
-#         label_T = [d['label'] for d in clip]
-#         label_T = np.array(label_T)
-
-#         return {'tensor_ctv': tensor_CTV,
-#                 'label_t': label_T}  # N dimension is batch_size
-
-#     @classmethod
-#     def from_config(cls, cfg, mode="train"):
-
-#         if mode == "train":
-#             names = cfg.DATASET.TRAIN_VIDEOS
-#             print("Loading dataset for TRAINING")
-#         elif mode == "test":
-#             names = cfg.DATASET.TEST_VIDEOS
-#             print("Loading dataset for TESTING")
-#         else:
-#             raise NotImplementedError()
-#         # Construct paths
-#         vibe_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.VIBE_DIR
-#         vibe_list = [vibe_folder / (name + '.pkl') for name in names]
-#         # Choose ground truth 
-#         if cfg.DATASET.GROUND_TRUTH == "33":
-#             label_folder_name = cfg.GENDATA.COMBINE_LABEL_DIR
-#         elif cfg.DATASET.GROUND_TRUTH == "9":
-#             label_folder_name = cfg.GENDATA.GES_LABEL_DIR
-#         else:
-#             raise NotImplementedError(f"Unsupported ground truth config: {cfg.DATASET.GROUND_TRUTH}")
-#         label_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / label_folder_name
-#         label_list = [label_folder / (name + '.json') for name in names]
-
-#         video_dataset_list = [SingleVIBESeqDataset.from_config(cfg)(vibe, label)
-#                               for vibe, label in zip(vibe_list, label_list)]
-#         instance = ConcatDataset(video_dataset_list, cfg.MODEL.CLIP_LEN)
-#         return instance
+# PGv2TestDataset.from_config(get_cfg_defaults())[1]
