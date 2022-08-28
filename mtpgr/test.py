@@ -1,3 +1,4 @@
+import json
 import logging
 import pickle
 from pathlib import Path
@@ -7,104 +8,81 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-from mtpgr.dataset import PGv2VIBESeqDataset, ConcatDataset
+from mtpgr.dataset.pgv2_dataset import PGv2TestDataset
 from mtpgr.config import get_cfg_defaults
+from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
 
 # joint xy coords -> gcn -> fcn
 from mtpgr.network.predictor import Predictor
 
 
 class Tester():
-    def __init__(self, predictor, output_name):
+    def __init__(self, predictor, num_classes, output_name):
         """
         Args:
             predictor: Includes dataloader and neural network
             output_name: Filename for saving prediction result
         """
         self.predictor = predictor
+        self.num_classes = num_classes
         self.output_name = output_name
+
         self.predictor.model.eval()
         self.predictor.post_step = self.post_step
+        # self.predictor.post_epoch = self.post_epoch
 
         self.pred_stream = []
         self.pred_TC_stream = []
         self.label_stream = []
 
-        self.step = 1
+        self.save_path = Path('output') / self.output_name
+        self.save_path.parent.mkdir(exist_ok=True)
+
+        self.result_list = []  # Test results. Shape: (seqs, {"pred", "label"})
 
     @torch.no_grad()
     def val(self):
         self.predictor.run_epoch()
-        self.post_epoch()
 
-        # self.sliding_add(self.cfg, pred_stream, label_stream, num_frame, pred_T, label_T)
-        # self.post_prediction(self.cfg, pred_stream, label_stream)
+        # Save to disk
+        with self.save_path.open('wb') as f:
+            pickle.dump(self.result_list, f)
+        
+        self._jaccard(self.result_list, self.num_classes)
 
-    def post_step(
-        self, 
-        class_TC,  # predicted score (float), shape:(time, confidence_score)
-        label_T,  # true class (int)
-        ):
-
-        class_TC = class_TC.cpu()
-        class_T = torch.argmax(class_TC, dim=-1)
-        class_T = class_T.view([-1])
-        label_T = label_T.cpu()
-        label_T = label_T.view([-1])
-
-        # To simulate the sliding window, only the last one result counts. except the beginning.
-        if len(self.pred_stream) == 0:  # At the beginning, append (temporal_length) frames
-            self.pred_stream.extend(class_T.tolist())
-            self.pred_TC_stream.extend(class_TC.tolist())
-            self.label_stream.extend(label_T.tolist())
-        else:  # At the middle, only append last frame
-            self.pred_stream.append(class_T.tolist()[-1])  # Temporally last result in GCN
-            self.pred_TC_stream.append(class_TC.tolist()[-1])
-            self.label_stream.append(label_T.tolist()[-1])
-            
-            
-
-        plot = False  # Graph of predictions and labels
-
-        if len(self.pred_stream) % 5000 == 0:
-            correct = np.array(self.pred_stream) == np.array(self.label_stream)
-            acc = correct.astype(np.float32).mean()
-            print("Frame: {}, Accuracy: {:.2f}".format(len(self.pred_stream), acc))
-            if plot:
-                plt.plot(self.label_stream)
-                plt.plot(self.pred_stream)
-                plt.show()
-
-        self.step = self.step + 1
-
-    def post_epoch(self):
-        # End of validation, dump results
-        assert len(self.pred_stream) == len(self.label_stream)
-        correct = np.array(self.pred_stream) == np.array(self.label_stream)
-        acc = correct.astype(np.float32).mean()
-        print("Total Frame: {}, Accuracy: {:.2f}".format(len(self.pred_stream), acc))
-
-        save_path = Path('output') / self.output_name
-        save_path.parent.mkdir(exist_ok=True)
-
-        with save_path.open('wb') as f:
-            pickle.dump({
-                'pred_T':self.pred_stream,
-                'pred_TC':self.pred_TC_stream,
-                'label_T': self.label_stream
-                }, f)
+    def post_step(self, pred, label):
+        """
+        In test, 1 step == 1 epoch. N (batch size) = 1.
+        Shapes:
+            pred: (N*T, C)
+            label: (N*T,)
+        """
+        self.result_list.append({
+                "pred": pred.cpu().numpy(), 
+                "label": label.cpu().numpy()
+            })
 
     @classmethod
-    def _data_loader(cls, cfg):  # Dataloader for validate
-        concat_dataset = ConcatDataset.from_config(cfg)
-        eval_loader = DataLoader(concat_dataset, batch_size=1, shuffle=False, drop_last=False)
+    def _test_set_dataloader(cls, cfg):  # Dataloader for validate
+        test_dataset = PGv2TestDataset.from_config(cfg)
+        eval_loader = DataLoader(test_dataset, batch_size=1, shuffle=False, drop_last=False)
         return eval_loader
 
     @classmethod
     def from_config(cls, cfg):
-        predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
-        instance = Tester(predictor, cfg.OUTPUT)
+        predictor = Predictor.from_config(cfg, cls._test_set_dataloader(cfg))
+        instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.OUTPUT)
         return instance
+
+    @staticmethod
+    def _jaccard(result_list, num_classes):
+        # Convert to list([gt][pred])
+        pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]
+        label_T = [seq_res["label"] for seq_res in result_list]
+        gt_pred_list = [(gt, pred) for gt, pred in zip(label_T, pred_T)]
+        J = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
+        print(J)
+
 
 
 if __name__ == '__main__':

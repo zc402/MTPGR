@@ -85,7 +85,7 @@ class PGv2TestDataset(Dataset):
         return len(self.seq_datasets)
 
     def __getitem__(self, index):
-        seq: np.ndarray = self.seq_datasets[index][:]
+        seq: np.ndarray = np.array([self.seq_datasets[index][frame] for frame in range(len(self.seq_datasets[index]))])
 
         kp = np.stack([seq[i, 0] for i in range(seq.shape[0])])
         ges = np.stack([seq[i, 1] for i in range(seq.shape[0])])
@@ -97,7 +97,7 @@ class PGv2TestDataset(Dataset):
     def from_config(cls, cfg):
         video_names: List[str] = cfg.DATASET.TEST_VIDEOS  # Videos from test set
         vibe_datasets = [PGv2VIBESeqDataset.from_config(cfg)(video_name) for video_name in video_names]
-        return PGv2TrainDataset(vibe_datasets, cfg.MODEL.CLIP_LEN) 
+        return PGv2TestDataset(vibe_datasets) 
 
 # PGv2TestDataset.from_config(get_cfg_defaults())[1]
 

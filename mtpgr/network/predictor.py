@@ -25,7 +25,10 @@ class Predictor:
             pred: (N*T, C)
             label: (N*T,)
         """
-        raise NotImplementedError()
+        pass
+
+    def post_epoch(self):
+        pass
 
     def run_epoch(self):
         for batch_data in self.data_loader:
@@ -39,6 +42,7 @@ class Predictor:
             tensor_label = tensor_label.reshape([-1])  # label shape: (N*T,)
 
             self.post_step(tensor_pred, tensor_label)
+        self.post_epoch()
 
     @staticmethod
     def _load_ckpt(model, ckpt, device):
