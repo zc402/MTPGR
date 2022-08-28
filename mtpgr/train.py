@@ -64,7 +64,7 @@ class Trainer:
     def _jaccard(pred, gt, num_classes):
         # Convert to list([gt][pred])
         gt_pred_list = [(np.argmax(pred, axis=-1), gt)]
-        J = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
+        J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
         print(f"Jaccard: {J}")
 
     @classmethod

@@ -22,7 +22,7 @@ class ChaLearnJaccard:
         # Equation 4
         Jsj: np.ndarray = np.array([self._sequence_jaccard(gt, pred) for gt, pred in gt_pred_list])
         Js_bar = Jsj.mean()
-        return Js_bar
+        return Js_bar, Jsj
 
     def _sequence_jaccard(self, y_true, y_pred):
         # Equation 2

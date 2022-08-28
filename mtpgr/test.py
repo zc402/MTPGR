@@ -11,6 +11,7 @@ from tqdm import tqdm
 from mtpgr.dataset.pgv2_dataset import PGv2TestDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
+from mtpgr.analysis.confusion_matrix import compute_cm
 
 # joint xy coords -> gcn -> fcn
 from mtpgr.network.predictor import Predictor
@@ -49,6 +50,7 @@ class Tester():
             pickle.dump(self.result_list, f)
         
         self._jaccard(self.result_list, self.num_classes)
+        self._confusion_matrix(self.result_list, self.num_classes)
 
     def post_step(self, pred, label):
         """
@@ -77,12 +79,19 @@ class Tester():
     @staticmethod
     def _jaccard(result_list, num_classes):
         # Convert to list([gt][pred])
-        pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]
+        pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)
         label_T = [seq_res["label"] for seq_res in result_list]
         gt_pred_list = [(gt, pred) for gt, pred in zip(label_T, pred_T)]
-        J = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
+        J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
         print(J)
 
+    @staticmethod
+    def _confusion_matrix(result_list, num_classes):
+        pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)
+        label_T = [seq_res["label"] for seq_res in result_list]
+        pred_T = np.concatenate(pred_T)
+        label_T = np.concatenate(label_T)
+        compute_cm(label_T, pred_T)
 
 
 if __name__ == '__main__':
