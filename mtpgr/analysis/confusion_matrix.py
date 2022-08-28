@@ -9,8 +9,16 @@ def compute_cm(y_true, y_pred):
     np.set_printoptions(precision=2)
     print('Confusion matrix, without normalization')
     print(cm)
+    plt.figure()
+    # Normalize the confusion matrix by row (i.e by the number of samples
+    # in each class)
+    cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+    print('Normalized confusion matrix')
+    print(cm_normalized)
     plt.figure
-    plot_confusion_matrix(cm)
+    plot_confusion_matrix(cm_normalized, title='Normalized confusion matrix')
+    # plot_confusion_matrix(cm)
+    plt.show()
 
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -23,3 +31,5 @@ def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.tight_layout
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
+
+
