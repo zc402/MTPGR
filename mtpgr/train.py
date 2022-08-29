@@ -3,15 +3,13 @@ from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
-import logging
 from tqdm import tqdm
 from mtpgr.network.predictor import Predictor
 from torch import optim
 from mtpgr.dataset.pgv2_dataset import PGv2TrainDataset
 from mtpgr.config import get_cfg_defaults
-from mtpgr.network import MTPGR
 from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
-
+from mtpgr.utils.log import log
 # joint xy coords -> gcn -> fcn
 class Trainer:
     def __init__(self, predictor, num_classes):
@@ -39,9 +37,9 @@ class Trainer:
         self.opt.step()
 
         if self.step % 100 == 0:
-            print("Step: %d, Loss: %f" % (self.step, loss_tensor.item()))
+            log.info("Step: %d, Loss: %f" % (self.step, loss_tensor.item()))
             acc = self.acc(pred, label)
-            print("Accuracy: {:.2f}".format(acc))
+            log.info("Accuracy: {:.2f}".format(acc))
             self._jaccard(pred.cpu().detach().numpy(), label.cpu().numpy(), self.num_classes)
 
         if self.step % 1000 == 0:
@@ -50,7 +48,7 @@ class Trainer:
         self.step = self.step + 1
 
     def train(self):
-        print("Training...")
+        log.info("Training...")
         for epoch in tqdm(range(200)):
             self.predictor.run_epoch()
 
@@ -65,7 +63,7 @@ class Trainer:
         # Convert to list([gt][pred])
         gt_pred_list = [(np.argmax(pred, axis=-1), gt)]
         J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
-        print(f"Jaccard: {J}")
+        log.info(f"Jaccard: {J}")
 
     @classmethod
     def _data_loader(cls, cfg):  # Dataloader for training
@@ -88,7 +86,6 @@ class Trainer:
     #     return logger
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
     train_cfg = get_cfg_defaults()
     train_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
     # train_cfg.merge_from_file(Path('configs', 'debug.yaml'))

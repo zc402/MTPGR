@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from mtpgr.config import get_cfg_defaults
-import logging
+from mtpgr.utils.log import log
 
 def combine(ges_label: Path, ori_label: Path, output: Path, show=True):
     with open(ges_label, 'r') as f:
@@ -46,7 +46,6 @@ def combine(ges_label: Path, ori_label: Path, output: Path, show=True):
         
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
     ges_folder: Path = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.GES_LABEL_DIR
@@ -64,5 +63,6 @@ if __name__ == '__main__':
         ori_file: Path = ori_folder / (video_name + '.json')
         assert ori_file.is_file()
         combine_file: Path = combine_folder / (video_name + '.json')
-        logging.info(f"Processing labels of video: {video_name}")
+        log.info(f"Processing labels of video: {video_name}")
         combine(ges_file, ori_file, combine_file, show=True)
+    log.info("Completed: combine_labels")

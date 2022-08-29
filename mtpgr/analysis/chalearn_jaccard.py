@@ -26,7 +26,7 @@ class ChaLearnJaccard:
 
     def _sequence_jaccard(self, y_true, y_pred):
         # Equation 2
-        j: np.ndarray = jaccard_score(y_true, y_pred, labels=range(self.L), average=None)  # j: scores for each class. array([1. , 0. , 0.33...])
+        j: np.ndarray = jaccard_score(y_true, y_pred, labels=range(self.L), average=None, zero_division=0)  # j: scores for each class. array([1. , 0. , 0.33...])
 
         # Equation 3
         # ls: the number of gesture classes appeared in the y_true sequence.

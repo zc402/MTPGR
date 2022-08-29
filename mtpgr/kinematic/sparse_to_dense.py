@@ -5,11 +5,11 @@ class SparseToDense:
     """
     Map the sparse part indices to dense part indices.
 
-    Not all parts in SMPL are selected, some are ignored.
-    The indices of selected parts are like: 2, 5, 8, 10, ..., which is sparse.
-    However, the GCN requires dense part indices from 0 to N like 0, 1, 2,..., N,
-    otherwise independent vertices with no edge will be created.
-    Therefore, this module is provided to map the sparse to dense.
+    Not all parts in SMPL are useful, some are ignored.
+    The indices of useful parts are like: 2, 5, 8, 10, ..., which is called "sparse indices".
+    However, the GCN requires dense part indices from 0 to N like 0, 1, 2,..., N, called "dense indices".
+    Otherwise independent vertices with no edge will be created.
+    This module maps the sparse indices to dense indices.
     """
     def __init__(self, heights_sparse, edges_sparse):
         self._heights_sparse = heights_sparse

@@ -2,18 +2,11 @@ import pickle
 from pathlib import Path
 from vibe.rt import RtVibe
 import cv2
-import logging
 from mtpgr.config import get_cfg_defaults
+from mtpgr.utils.log import log
 import torch
 import numpy as np
 from tqdm import tqdm
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
-c_handler = logging.StreamHandler()
-c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-c_handler.setFormatter(c_format)
-logger.addHandler(c_handler)
 
 class RtVibeExtTrace(RtVibe):
     """
@@ -58,9 +51,9 @@ def convert_trace_to_vibe(video_file: Path,
         # i: current video frame
         ret, image = cap.read()
         if not ret:
-            logger.warning(f"cv2 video capture returns false at frame {i}")
+            log.warning(f"cv2 video capture returns false at frame {i}")
         if i not in track_res['frames']:
-            logger.debug(f"Frame {i} skipped. Reason: no frame {i} in trace data")
+            log.debug(f"Frame {i} skipped. Reason: no frame {i} in trace data")
         else:
             # trace_wrap is used to suit the vibe input format
 
@@ -86,7 +79,7 @@ if __name__ == '__main__':
     show_render = False
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Check current working directory, expect "./MTPGR"'
-    logger.info("Running VIBE on videos")
+    log.info("Running VIBE on videos")
 
     trace_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACE_SINGLE_DIR
     assert trace_folder.is_dir()
@@ -100,9 +93,9 @@ if __name__ == '__main__':
         trace_file = trace_folder / (video.stem + '.pkl')
         target_path = vibe_folder / (video.stem + '.pkl')
         if target_path.is_file() and not overwrite:
-            logger.info(f'Skipping {video.stem}. Target already exists.')
+            log.info(f'Skipping {video.stem}. Target already exists.')
         else:
-            logger.info(f'Processing {video.stem}...')
+            log.info(f'Processing {video.stem}...')
             convert_trace_to_vibe(video, trace_file, target_path, render=show_render)
 
 

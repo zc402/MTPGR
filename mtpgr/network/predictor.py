@@ -3,11 +3,11 @@ from torch.utils.data import DataLoader
 import torch
 import numpy as np
 from torch.nn import CrossEntropyLoss
-import logging
 from tqdm import tqdm
 from torch import optim
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
+from mtpgr.utils.log import log
 
 # joint xy coords -> gcn -> fcn
 class Predictor:
@@ -17,7 +17,6 @@ class Predictor:
         self.model = self._load_ckpt(model, ckpt, device)
         self.ckpt = ckpt
         self.device = device
-        self.logger = logging.getLogger(__name__)
 
     def post_step(self, pred, label):
         """
@@ -32,11 +31,10 @@ class Predictor:
 
     def run_epoch(self):
         for batch_data in self.data_loader:
-            kp, ges, ori, combine = batch_data
 
-            tensor_input = kp.to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
+            tensor_input = batch_data["kp"].to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
             tensor_input = torch.permute(tensor_input, (0, 3, 1, 2))
-            tensor_label = combine.to(self.device)  # label shape: (N,T)
+            tensor_label = batch_data["combine"].to(self.device)  # label shape: (N,T)
 
             tensor_pred = self.model(tensor_input)  # pred shape: (N*T,C)
             tensor_label = tensor_label.reshape([-1])  # label shape: (N*T,)
@@ -48,18 +46,18 @@ class Predictor:
     def _load_ckpt(model, ckpt, device):
 
         if ckpt.is_file():
-            logging.info("Checkpoint found. Resume from previous ckeckpoint")
+            log.info("Checkpoint found. Resume from previous ckeckpoint")
             ckpt = torch.load(ckpt)
             model.load_state_dict(ckpt)
         else:
-            logging.info("Checkpoint not found. Initialize random model parameters.")
+            log.info("Checkpoint not found. Initialize random model parameters.")
             ckpt.parent.mkdir(exist_ok=True)
         model.to(device)
         return model
 
     def save_ckpt(self):
         torch.save(self.model.state_dict(), self.ckpt)
-        logging.info('Model saved')
+        log.info('Model saved')
 
     @classmethod
     def from_config(cls, cfg, data_loader):

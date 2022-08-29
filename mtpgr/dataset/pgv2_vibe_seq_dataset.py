@@ -57,7 +57,7 @@ class PGv2VIBESeqDataset(Dataset):
         orientation = self.ori_label[video_frame_num]
         combine = self.combine_label_path[video_frame_num]
 
-        keypoints = self._extract_pose_params(vibe_output)  # Shape: (num_keypoints, 3D_coord)
+        keypoints = self._get_vibe_pose_params(vibe_output)  # Shape: (num_keypoints, 3D_coord)
 
         if self.use_cam_pose:
             # The cam pose should be concat to index 0 of all features, according to JOINT_MAP dense indices
@@ -68,14 +68,14 @@ class PGv2VIBESeqDataset(Dataset):
         if self.part_filter:
             keypoints = keypoints[self.part_filter]
 
-        return (
-            keypoints,  # Shape: (V - num_keypoints, C - 3D_coord)
-            gesture,  # Shape: (L,)
-            orientation,  # Shape: (L,)
-            combine,  # Shape: (L,)
-        )
+        return {
+            "kp": keypoints,  # Shape: (V - num_keypoints, C - 3D_coord)
+            "ges": gesture,  # Shape: (L,)
+            "ori": orientation,  # Shape: (L,)
+            "combine": combine,  # Shape: (L,)
+        }
 
-    def _extract_pose_params(self, vibe_output):
+    def _get_vibe_pose_params(self, vibe_output):
         """
         Convert vibe_params to STGCN input features of shape C,V.
         STGCN requires input features of shape N,C,T,V. (N:batch, C: num_features. T: num_frames. V: num_keypoints)

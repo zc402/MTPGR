@@ -1,10 +1,9 @@
 """
 Spatially connected joints
 """
-import logging
 from typing import List
 import numpy as np
-
+from mtpgr.utils.log import log
 
 class Edges:
 
@@ -34,13 +33,13 @@ class Edges:
     def __init__(self, pname_id_map: dict, use_cam_pose: bool, no_spatial_edges: bool=False):
         if use_cam_pose:  # Use the camera pose as a vertice
             self._edges_name.extend(['OP Neck', 'PRED_CAM'])
-            logging.debug("Edges: Using camera features (default)")
+            log.debug("Edges: Using camera features (default)")
         else:
-            logging.debug("Edges: Using NO camera mode")
+            log.debug("Edges: Using NO camera mode")
         
-        if no_spatial_edges:  # Decrease number of spatial edges for ablation study
-            self._edge_name = [('OP Nose', 'OP Neck')]
-            logging.debug("Edges: Using NO spatial edge mode")
+        if no_spatial_edges:  # Disable spatial edges for ablation study
+            self._edge_name = []
+            log.debug("Edges: Using NO spatial edge mode")
             assert not use_cam_pose, "'No spatial edge' option is conflict with 'camera pose' option"
 
         self.edges = list(map(pname_id_map.get, self._edges_name))  # edge_list[part_idx]

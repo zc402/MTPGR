@@ -4,9 +4,9 @@ The police is not always tracked correctly. Wrong tracks needs to be fixed manua
 """
 import pickle
 from pathlib import Path
-import logging
 import numpy as np
 from mtpgr.config import get_cfg_defaults
+from mtpgr.utils.log import log
 
 def load_tracking_results(track_file: Path) -> list:
     with track_file.open('rb') as f:
@@ -19,7 +19,7 @@ def load_tracking_results(track_file: Path) -> list:
 def is_tracked_every_frame(track_file: Path):
     # Check if tracked frames equal total frames. This indicates a correct tracking result.
 
-    logger.info(f"Checking {track_file}")
+    log.info(f"Checking {track_file}")
     track_sort = load_tracking_results(track_file)
     tracked_len = len(track_sort[0][1]['frames'])
 
@@ -27,9 +27,9 @@ def is_tracked_every_frame(track_file: Path):
     img_num = len(list(image_folder.glob('*.jpg')))
 
     if img_num == tracked_len:
-        logger.info('Tracked frames equals to the num of images')
+        log.info('Tracked frames equals to the num of images')
     else:
-        logger.error(f'Incorrect track:{track_file}, {img_num} images, {tracked_len} tracked frames')
+        log.error(f'Incorrect track:{track_file}, {img_num} images, {tracked_len} tracked frames')
 
 
 def non_maximum_suppression_1d(track_file: Path):
@@ -67,13 +67,7 @@ def find_concat_police_tracks(track_mul: Path, save_path: Path):
 
 if __name__ == '__main__':
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    c_handler = logging.StreamHandler()
-    c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-    c_handler.setFormatter(c_format)
-    logger.addHandler(c_handler)
-    logger.info("Extract the trace of the police")
+    log.info("Extract the trace of the police")
 
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
@@ -87,7 +81,7 @@ if __name__ == '__main__':
     track_crct_folder.mkdir(exist_ok=True)
 
     for trace in trace_files:
-        logger.debug(f'Working on {trace}...')
+        log.info(f'Working on {trace}...')
         save_path = track_crct_folder / (trace.stem + '.pkl')
         find_concat_police_tracks(trace, save_path)
-        logger.info(f'Trace saved into {save_path.absolute()}')
+        log.info(f'Trace saved into {save_path.absolute()}')

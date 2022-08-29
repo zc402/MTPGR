@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 from mtpgr.config import get_cfg_defaults
-import logging
+from mtpgr.utils.log import log
 """
 Example of data format in .llc file:
 {
@@ -88,7 +88,6 @@ def ori_llc_to_frame(video: Path, label: Path, save_path: Path, show: bool = Tru
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
     cfg = get_cfg_defaults()
     assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
     # Folder of per-frame label files
@@ -100,17 +99,17 @@ if __name__ == '__main__':
     video_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
     video_paths = video_folder.glob('*.m4v')
     video_paths = list(video_paths)
-    logging.debug("video folder is:")
-    logging.debug(video_folder.absolute())
-    logging.debug("videos:")
-    logging.debug(video_paths)
+    log.debug("video folder is:")
+    log.debug(video_folder.absolute())
+    log.debug("videos:")
+    log.debug(video_paths)
 
     for video in video_paths:
-        logging.info(f'Now processing: "{video}"')
+        log.info(f'Now processing: "{video}"')
         # Source .llc path
         source_file = source_folder / (video.stem + '-proj.llc')
         # Target .json path
         target_file = target_folder / (video.stem + '.json')
 
         ori_llc_to_frame(video, source_file, target_file, show=False)
-        logging.info(f'Timestamp label saved to {target_file.absolute()}')
+        log.info(f'Timestamp label saved to {target_file.absolute()}')

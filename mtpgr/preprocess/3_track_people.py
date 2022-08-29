@@ -7,7 +7,7 @@ import torch
 import numpy as np
 from torch.utils.data import IterableDataset, DataLoader
 from mtpgr.config import get_cfg_defaults
-import logging
+from mtpgr.utils.log import log
 from multi_person_tracker import Sort
 from torchvision.transforms.functional import to_tensor
 
@@ -98,10 +98,10 @@ def to_trace(video_path: Path, save_path: Path):
     assert video_path.is_file()
 
     if torch.cuda.is_available():
-        logger.debug("CUDA available")
+        log.debug("CUDA available")
         device = torch.device('cuda')
     else:
-        logger.warning("CUDA not available!")
+        log.warning("CUDA not available!")
         device = torch.device('cpu')
 
     mpt = MPT_Iterate(
@@ -117,17 +117,10 @@ def to_trace(video_path: Path, save_path: Path):
     with save_path.open('wb') as f:
         pickle.dump(tracking_result, f)
     
-    # logger.debug(tracking_result)
+    # log.debug(tracking_result)
 
 
 if __name__ == '__main__':
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    c_handler = logging.StreamHandler()
-    c_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-    c_handler.setFormatter(c_format)
-    logger.addHandler(c_handler)
-    logger.info("Tracking people in dataset...")
 
     cfg = get_cfg_defaults()
 
@@ -140,9 +133,9 @@ if __name__ == '__main__':
     target_folder: Path = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.TRACK_DIR
     target_folder.mkdir(exist_ok=True)
     for video in videos:
-        logger.info(f"Processing file {video.stem}")
+        log.info(f"Processing file {video.stem}")
         target_path = target_folder / (video.stem + ".pkl")
         if target_path.is_file():
-            logger.info(f'track file {video.stem} already exists. Ignored.')
+            log.info(f'track file {video.stem} already exists. Ignored.')
         else:
             to_trace(video, target_path)

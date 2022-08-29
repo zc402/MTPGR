@@ -1,5 +1,4 @@
 from typing import List, Dict
-import logging
 import math
 import torch.utils.data
 from torch.utils.data import Dataset, DataLoader
@@ -45,15 +44,16 @@ class PGv2TrainDataset(Dataset):
         # truncated_seq: List[Dict[str: np.ndarray]] = [self.concat_dataset[x] for x in range(index, index+self.clip_len)]
         # Is this concat dataset bug still there?
         
-        # Shape: [0:truncate_len - frames] [0:4 - labels] [each label...]
+        # Shape: [0:truncate_len - frames] [str - labels] [each label...]
         truncated_seq: np.ndarray = self._cycle(self.concat_dataset, start_frame, end_frame)
+        assert truncated_seq.shape[0] == self.truncate_len
 
-        # kp, ges, ori, combine = [truncated_seq[:, i] for i in range(4)]
-        kp = np.stack([truncated_seq[i, 0] for i in range(truncated_seq.shape[0])])
-        ges = np.stack([truncated_seq[i, 1] for i in range(truncated_seq.shape[0])])
-        ori = np.stack([truncated_seq[i, 2] for i in range(truncated_seq.shape[0])])
-        combine = np.stack([truncated_seq[i, 3] for i in range(truncated_seq.shape[0])])
-        return kp, ges, ori, combine
+        truncated_seq_dict = {}  # {"kp": np.ndarray, "ges": np.ndarray, ...}
+        result_dict_keys:List[str] = truncated_seq[0].keys()
+        for key_name in result_dict_keys:
+            truncated_seq_dict[key_name] = np.stack([truncated_seq[i][key_name] for i in range(self.truncate_len)])
+
+        return truncated_seq_dict
     
     def _cycle(self, seq, ia, ib):
         """Read the list from beginning if the index is out of boundary.
@@ -87,11 +87,18 @@ class PGv2TestDataset(Dataset):
     def __getitem__(self, index):
         seq: np.ndarray = np.array([self.seq_datasets[index][frame] for frame in range(len(self.seq_datasets[index]))])
 
-        kp = np.stack([seq[i, 0] for i in range(seq.shape[0])])
-        ges = np.stack([seq[i, 1] for i in range(seq.shape[0])])
-        ori = np.stack([seq[i, 2] for i in range(seq.shape[0])])
-        combine = np.stack([seq[i, 3] for i in range(seq.shape[0])])
-        return kp, ges, ori, combine
+        seq_dict = {}  # {"kp": np.ndarray, "ges": np.ndarray, ...}
+        result_dict_keys:List[str] = seq[0].keys()
+        for key_name in result_dict_keys:
+            seq_dict[key_name] = np.stack([seq[i][key_name] for i in range(seq.shape[0])])
+
+        return seq_dict
+
+        # kp = np.stack([seq[i, 0] for i in range(seq.shape[0])])
+        # ges = np.stack([seq[i, 1] for i in range(seq.shape[0])])
+        # ori = np.stack([seq[i, 2] for i in range(seq.shape[0])])
+        # combine = np.stack([seq[i, 3] for i in range(seq.shape[0])])
+        # return kp, ges, ori, combine
     
     @classmethod
     def from_config(cls, cfg):
@@ -99,8 +106,4 @@ class PGv2TestDataset(Dataset):
         vibe_datasets = [PGv2VIBESeqDataset.from_config(cfg)(video_name) for video_name in video_names]
         return PGv2TestDataset(vibe_datasets) 
 
-# PGv2TestDataset.from_config(get_cfg_defaults())[1]
-
-# class Utils:
-#     @staticmethod
-#     def extract_seq_from_batch(seq)
+PGv2TestDataset.from_config(get_cfg_defaults())[1]

@@ -1,5 +1,4 @@
-import json
-import logging
+
 import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -8,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
+from mtpgr.utils.log import log
 from mtpgr.dataset.pgv2_dataset import PGv2TestDataset
 from mtpgr.config import get_cfg_defaults
 from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
@@ -83,7 +83,7 @@ class Tester():
         label_T = [seq_res["label"] for seq_res in result_list]
         gt_pred_list = [(gt, pred) for gt, pred in zip(label_T, pred_T)]
         J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
-        print(J)
+        log.info(f"Jaccard score is {J}. Scores for each sequence are {Js}")
 
     @staticmethod
     def _confusion_matrix(result_list, num_classes):
@@ -95,7 +95,6 @@ class Tester():
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
     val_cfg = get_cfg_defaults()
     val_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
     Tester.from_config(val_cfg).val()
