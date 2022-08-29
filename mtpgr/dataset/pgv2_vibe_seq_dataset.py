@@ -50,20 +50,25 @@ class PGv2VIBESeqDataset(Dataset):
     def __getitem__(self, index):
         vibe_output = self.vibe[index]  # vibe output for 1 frame
         vibe_output = vibe_output.get(1)  # person 1 is the police, manually defined in preprocessing code
-        # Note that the length of 'vibe result' is shorter than 'label' due to untracked frames (occlusion etc.).
-        # Therefore, the 'frame' key in vibe result is used to skip these untracked frames.
-        video_frame_num = vibe_output['frame_ids'][0]  # Corresponding video frame. video_frame_num is 0-based
+        vibe_output = {k:v[0] for k,v in vibe_output.items() if v is not None}  # Squeeze the frame dim. The original VIBE uses this dimision for frame_num. RT_VIBE keeps the structure, but leave this dim empty.
+        """Note that the length of 'vibe result' is shorter than 'label' due to untracked frames (occlusion etc.).
+        Therefore, the 'frame' key in vibe result is used to skip these untracked frames."""
+        video_frame_num = vibe_output['frame_ids']  # Corresponding video frame. video_frame_num is 0-based
         gesture = self.ges_label[video_frame_num]
         orientation = self.ori_label[video_frame_num]
         combine = self.combine_label_path[video_frame_num]
 
-        keypoints = self._get_vibe_pose_params(vibe_output)  # Shape: (num_keypoints, 3D_coord)
+        """vibe_output:
+        {"pred_cam": ndarray - shape(3), "orig_cam": shape(4), "pose": shape(72), "betas": shape(10),
+        "joints3d": shape(49, 3), "joints2d_img_coord": shape(49, 2), "bbox": shape(4), frame_ids: shape(,)}
+        """
+        keypoints = vibe_output['joints3d']
+        # keypoints = self._get_vibe_pose_params(vibe_output)  # Shape: (num_keypoints, 3D_coord)
 
         if self.use_cam_pose:
-            # The cam pose should be concat to index 0 of all features, according to JOINT_MAP dense indices
             cam = vibe_output['pred_cam']
-            cam = cam.reshape((-1, 3))
-            keypoints = np.concatenate((cam, keypoints))
+            cam = cam.reshape((1, 3))
+            keypoints = np.concatenate((keypoints, cam))
 
         if self.part_filter:
             keypoints = keypoints[self.part_filter]
@@ -74,15 +79,16 @@ class PGv2VIBESeqDataset(Dataset):
             "ori": orientation,  # Shape: (L,)
             "combine": combine,  # Shape: (L,)
         }
+    
 
-    def _get_vibe_pose_params(self, vibe_output):
-        """
-        Convert vibe_params to STGCN input features of shape C,V.
-        STGCN requires input features of shape N,C,T,V. (N:batch, C: num_features. T: num_frames. V: num_keypoints)
-        """
-        pose = vibe_output['pose']  # 72 pose params,
-        pose_VC = pose.reshape((-1, 3))  # (num_keypoints, rotation_3d)
-        return pose_VC
+    # def _get_vibe_pose_params(self, vibe_output):
+    #     """
+    #     Convert vibe_params to STGCN input features of shape C,V.
+    #     STGCN requires input features of shape N,C,T,V. (N:batch, C: num_features. T: num_frames. V: num_keypoints)
+    #     """
+    #     pose = vibe_output['pose']  # 72 pose params,
+    #     pose_VC = pose.reshape((-1, 3))  # (num_keypoints, rotation_3d)
+    #     return pose_VC
 
     @classmethod
     def from_config(cls, cfg):

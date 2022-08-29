@@ -7,7 +7,8 @@ class Parts:
         """
         self.name_id_map = {name: idx for idx, name in enumerate(JOINT_NAMES)}  # {part_name: part_idx}
         if use_cam_pose:
-            self.name_id_map.update({'PRED_CAM': -1})
+            assert (48 in self.name_id_map.values()) and (49 not in self.name_id_map.values())
+            self.name_id_map.update({'PRED_CAM': 49})
 
     def get_name_id_map(self):
         return self.name_id_map

@@ -106,4 +106,4 @@ class PGv2TestDataset(Dataset):
         vibe_datasets = [PGv2VIBESeqDataset.from_config(cfg)(video_name) for video_name in video_names]
         return PGv2TestDataset(vibe_datasets) 
 
-PGv2TestDataset.from_config(get_cfg_defaults())[1]
+# PGv2TestDataset.from_config(get_cfg_defaults())[1]
