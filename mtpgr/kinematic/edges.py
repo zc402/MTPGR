@@ -38,7 +38,7 @@ class Edges:
             log.debug("Edges: Using NO camera mode")
         
         if no_spatial_edges:  # Disable spatial edges for ablation study
-            self._edge_name = []
+            self._edges_name = ['OP Nose', 'OP Neck']
             log.debug("Edges: Using NO spatial edge mode")
             assert not use_cam_pose, "'No spatial edge' option is conflict with 'camera pose' option"
 

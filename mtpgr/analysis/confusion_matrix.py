@@ -6,14 +6,13 @@ from sklearn.metrics import confusion_matrix
 
 def compute_cm(y_true, y_pred, save_folder:Path=None):
     cm = confusion_matrix(y_true, y_pred, )
-    np.set_printoptions(precision=2)
-    print('Confusion matrix, without normalization')
-    print(cm)
-    # Normalize the confusion matrix by row (i.e by the number of samples
-    # in each class)
+    # np.set_printoptions(precision=2)
+    # print('Confusion matrix, without normalization')
+    # print(cm)
+    # Normalize the confusion matrix by row (i.e by the number of samples in each class)
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
-    print('Normalized confusion matrix')
-    print(cm_normalized)
+    # print('Normalized confusion matrix')
+    # print(cm_normalized)
 
     if save_folder is not None:
         np.savetxt(save_folder / "cm.txt", cm, fmt='%-6d')
