@@ -9,7 +9,6 @@ def compute_cm(y_true, y_pred, save_folder:Path=None):
     np.set_printoptions(precision=2)
     print('Confusion matrix, without normalization')
     print(cm)
-    plt.figure()
     # Normalize the confusion matrix by row (i.e by the number of samples
     # in each class)
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -19,10 +18,10 @@ def compute_cm(y_true, y_pred, save_folder:Path=None):
     if save_folder is not None:
         np.savetxt(save_folder / "cm.txt", cm, fmt='%-6d')
         np.savetxt(save_folder / "cm_norm.txt", cm_normalized, fmt='%.2f')
-    plt.figure
+    plt.figure()
     plot_confusion_matrix(cm_normalized, title='Normalized confusion matrix')
     # plot_confusion_matrix(cm)
-    plt.show()
+    plt.savefig(save_folder / "cm_norm.pdf")
 
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):

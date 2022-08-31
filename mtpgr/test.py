@@ -1,4 +1,5 @@
 
+import argparse
 import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -96,6 +97,13 @@ class Tester():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Tester for monocular traffic police gesture recognizer')
+    parser.add_argument('-c', '--config', type=str, default="default_model.yaml", help='Enter the file name of a configuration from configs folder')
+    args = parser.parse_args()
+    config_path:Path = Path('configs', args.config)
+    if not config_path.is_file():
+        log.error(f"No such config file: {config_path}")
+
     val_cfg = get_cfg_defaults()
-    val_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
+    val_cfg.merge_from_file(config_path)
     Tester.from_config(val_cfg).val()

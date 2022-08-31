@@ -33,6 +33,21 @@
 				"justMyCode": true,
 				"cwd": "${workspaceFolder}",
 				"env": {"PYTHONPATH": "${cwd}"}
+			},
+
+			{
+				"name": "Test",
+				"type": "python",
+				"request": "launch",
+				"program": "./mtpgr/test.py",
+				"args": 
+				[
+					"-c","no_attention.yaml"
+				],
+				"console": "integratedTerminal",
+				"justMyCode": true,
+				"cwd": "${workspaceFolder}",
+				"env": {"PYTHONPATH": "${cwd}"}
 			}
 		]
 	}

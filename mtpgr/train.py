@@ -88,9 +88,8 @@ class Trainer:
     #     return logger
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Monocular traffic police gesture recognizer')
+    parser = argparse.ArgumentParser(description='Trainer for monocular traffic police gesture recognizer')
     parser.add_argument('-c', '--config', type=str, default="default_model.yaml", help='Enter the file name of a configuration from configs folder')
-
     args = parser.parse_args()
     config_path:Path = Path('configs', args.config)
     if not config_path.is_file():
