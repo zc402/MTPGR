@@ -1,0 +1,4 @@
+MODEL:
+  ATTENTION: False
+  MTPGR_CKPT: 'no_attention.ckpt'
+OUTPUT: 'no_attention'

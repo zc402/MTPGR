@@ -34,12 +34,13 @@ _C.MODEL = CN()  # Network configs and save paths
 _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
 _C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
+_C.MODEL.ATTENTION = True # Use attention in GCN
 _C.MODEL.USE_CAMERA_POSE = True  # Add camera pose to joint features
 _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 _C.MODEL.NO_SPATIAL_EDGES = False  # No spatial edges on the graph, for ablation study.
 
-_C.OUTPUT = 'output.pkl'  # Test result output
+_C.OUTPUT = 'default_output'  # Test result output
 
 # _C.TRAIN.CLIP_LEN = 300
 # _C.TRAIN.BATCH_SIZE = 10

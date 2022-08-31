@@ -14,7 +14,6 @@ class SpatialMean(nn.Module):
 
     def __init__(self, in_channels, out_channels):
         super().__init__()
-        # self.bone = BoneNetwork(in_channels)
 
         self.fcn = nn.Linear(in_channels, out_channels)
 

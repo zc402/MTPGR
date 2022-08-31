@@ -18,6 +18,21 @@
 				"cwd": "${workspaceFolder}",
 				"env": {"PYTHONPATH": "${cwd}"}
 				
+			},
+
+			{
+				"name": "Train",
+				"type": "python",
+				"request": "launch",
+				"program": "./mtpgr/train.py",
+				"args": 
+				[
+					"-c","no_attention.yaml"
+				],
+				"console": "integratedTerminal",
+				"justMyCode": true,
+				"cwd": "${workspaceFolder}",
+				"env": {"PYTHONPATH": "${cwd}"}
 			}
 		]
 	}

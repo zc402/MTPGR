@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torch
@@ -38,12 +39,7 @@ class Trainer:
 
         if self.step % 100 == 0:
             log.info("Step: %d, Loss: %f" % (self.step, loss_tensor.item()))
-            acc = self.acc(pred, label)
-            log.info("Accuracy: {:.2f}".format(acc))
-            self._jaccard(pred.cpu().detach().numpy(), label.cpu().numpy(), self.num_classes)
-
-        if self.step % 1000 == 0:
-            self.predictor.save_ckpt()
+            self._report(pred, label)
 
         self.step = self.step + 1
 
@@ -51,6 +47,12 @@ class Trainer:
         log.info("Training...")
         for epoch in tqdm(range(200)):
             self.predictor.run_epoch()
+            self.predictor.save_ckpt()
+
+    def _report(self, pred, label):
+        acc = self.acc(pred, label)
+        log.info("Accuracy: {:.2f}".format(acc))
+        self._jaccard(pred.cpu().detach().numpy(), label.cpu().numpy(), self.num_classes)
 
     @staticmethod
     def acc(input, target):
@@ -86,9 +88,15 @@ class Trainer:
     #     return logger
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Monocular traffic police gesture recognizer')
+    parser.add_argument('-c', '--config', type=str, default="default_model.yaml", help='Enter the file name of a configuration from configs folder')
+
+    args = parser.parse_args()
+    config_path:Path = Path('configs', args.config)
+    if not config_path.is_file():
+        log.error(f"No such config file: {config_path}")
+
     train_cfg = get_cfg_defaults()
-    train_cfg.merge_from_file(Path('configs', 'default_model.yaml'))
-    # train_cfg.merge_from_file(Path('configs', 'debug.yaml'))
-    # train_cfg.merge_from_file(Path('configs', 'train_no_spatial_edges.yaml'))
+    train_cfg.merge_from_file(config_path)
 
     Trainer.from_config(train_cfg).train()

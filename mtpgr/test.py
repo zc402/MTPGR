@@ -36,8 +36,9 @@ class Tester():
         self.pred_TC_stream = []
         self.label_stream = []
 
-        self.save_path = Path('output') / self.output_name
-        self.save_path.parent.mkdir(exist_ok=True)
+        self.save_folder = Path('output') / self.output_name
+        self.save_folder.parent.mkdir(exist_ok=True)
+        self.save_folder.mkdir(exist_ok=True)
 
         self.result_list = []  # Test results. Shape: (seqs, {"pred", "label"})
 
@@ -45,12 +46,13 @@ class Tester():
     def val(self):
         self.predictor.run_epoch()
 
+        result_save_path = self.save_folder / "result.pkl"
         # Save to disk
-        with self.save_path.open('wb') as f:
+        with result_save_path.open('wb') as f:
             pickle.dump(self.result_list, f)
         
         self._jaccard(self.result_list, self.num_classes)
-        self._confusion_matrix(self.result_list, self.num_classes)
+        self._confusion_matrix(self.result_list)
 
     def post_step(self, pred, label):
         """
@@ -85,13 +87,12 @@ class Tester():
         J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
         log.info(f"Jaccard score is {J}. Scores for each sequence are {Js}")
 
-    @staticmethod
-    def _confusion_matrix(result_list, num_classes):
+    def _confusion_matrix(self, result_list):
         pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)
         label_T = [seq_res["label"] for seq_res in result_list]
         pred_T = np.concatenate(pred_T)
         label_T = np.concatenate(label_T)
-        compute_cm(label_T, pred_T)
+        compute_cm(label_T, pred_T, save_folder=self.save_folder)
 
 
 if __name__ == '__main__':

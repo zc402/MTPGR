@@ -50,7 +50,7 @@ class Predictor:
             ckpt = torch.load(ckpt)
             model.load_state_dict(ckpt)
         else:
-            log.info("Checkpoint not found. Initialize random model parameters.")
+            log.warn("Checkpoint not found. Initialize random model parameters.")
             ckpt.parent.mkdir(exist_ok=True)
         model.to(device)
         return model
