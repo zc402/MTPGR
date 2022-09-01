@@ -88,7 +88,7 @@ class Tester():
         log.info(f"Jaccard score is {J}. Scores for each sequence are {Js}")
         np.savetxt(self.save_folder / "jaccard_matrix.txt", j_mat, fmt='%-.2f')
         np.savetxt(self.save_folder / "jaccard_each_seq.txt", Js, fmt='%-.2f')
-        np.savetxt(self.save_folder / "jaccard_chalearn", J[np.newaxis], fmt='%-.2f')
+        np.savetxt(self.save_folder / "jaccard_avg.txt", J[np.newaxis], fmt='%-.2f')
 
     def _confusion_matrix(self, result_list):
         pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)

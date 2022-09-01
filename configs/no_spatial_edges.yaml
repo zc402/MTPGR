@@ -1,5 +1,4 @@
 MODEL:
-  ATTENTION: False
   NO_SPATIAL_EDGES: True 
   MTPGR_CKPT: 'no_spatial_edges.ckpt'
 OUTPUT: "no_spatial_edges"
