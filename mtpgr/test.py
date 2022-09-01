@@ -25,7 +25,7 @@ class Tester():
             predictor: Includes dataloader and neural network
             output_name: Filename for saving prediction result
         """
-        self.predictor = predictor
+        self.predictor: Predictor = predictor
         self.num_classes = num_classes
         self.output_name = output_name
 
@@ -79,14 +79,16 @@ class Tester():
         instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.OUTPUT)
         return instance
 
-    @staticmethod
-    def _jaccard(result_list, num_classes):
+    def _jaccard(self, result_list, num_classes):
         # Convert to list([gt][pred])
         pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)
         label_T = [seq_res["label"] for seq_res in result_list]
         gt_pred_list = [(gt, pred) for gt, pred in zip(label_T, pred_T)]
-        J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
+        J, Js, j_mat = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
         log.info(f"Jaccard score is {J}. Scores for each sequence are {Js}")
+        np.savetxt(self.save_folder / "jaccard_matrix.txt", j_mat, fmt='%-.2f')
+        np.savetxt(self.save_folder / "jaccard_each_seq.txt", Js, fmt='%-.2f')
+        np.savetxt(self.save_folder / "jaccard_chalearn", J[np.newaxis], fmt='%-.2f')
 
     def _confusion_matrix(self, result_list):
         pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)

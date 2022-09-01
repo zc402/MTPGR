@@ -1,9 +1,8 @@
 from typing import List, Dict
 import math
 import torch.utils.data
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 import numpy as np
-from pathlib import Path
 
 from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.dataset.pgv2_vibe_seq_dataset import PGv2VIBESeqDataset
@@ -92,6 +91,7 @@ class PGv2TestDataset(Dataset):
         for key_name in result_dict_keys:
             seq_dict[key_name] = np.stack([seq[i][key_name] for i in range(seq.shape[0])])
 
+        seq_dict["name"] = self.seq_datasets[index].get_name()
         return seq_dict
 
         # kp = np.stack([seq[i, 0] for i in range(seq.shape[0])])

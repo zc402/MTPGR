@@ -8,7 +8,7 @@ class TCN(nn.Module):
 
     def __init__(self, channels: int, t_kernel_size: int, stride=1):
         super().__init__()
-
+        dropout = 0
         assert t_kernel_size % 2 == 1
         # stride = 1
         padding = ((t_kernel_size - 1) // 2, 0)
@@ -24,7 +24,7 @@ class TCN(nn.Module):
                 padding,
             ),
             nn.BatchNorm2d(channels),
-            # nn.Dropout(dropout, inplace=True),
+            nn.Dropout(dropout, inplace=True),
         )
 
     def forward(self, x):

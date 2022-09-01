@@ -1,7 +1,6 @@
 import torch
 
 from torch import nn
-from .bone_network import BoneNetwork
 
 class SpatialMean(nn.Module):
     """ STGCN, output num_class scores
@@ -15,7 +14,10 @@ class SpatialMean(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        self.fcn = nn.Linear(in_channels, out_channels)
+        self.fcn = nn.Sequential(
+            nn.Linear(in_channels, out_channels),
+            nn.Dropout(p=0.5, inplace=True),
+        )
 
     def forward(self, x):
         # x shape: N,C,T,V. T: Temporal features; V: Spatial features

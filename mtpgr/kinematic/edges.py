@@ -53,8 +53,8 @@ class Edges:
         from .parts import Parts
         parts = Parts.from_config(cfg)
         if cfg.MODEL.NO_SPATIAL_EDGES:
-            return Edges(parts.get_name_id_map(), False, True)
-        return Edges(parts.get_name_id_map(), cfg.MODEL.USE_CAMERA_POSE)
+            return Edges(parts.get_name_id_map(), use_cam_pose=False, no_spatial_edges=True)
+        return Edges(parts.get_name_id_map(), use_cam_pose=cfg.MODEL.USE_CAMERA_POSE)
 
 
 

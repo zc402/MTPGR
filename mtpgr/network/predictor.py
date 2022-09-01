@@ -1,10 +1,6 @@
 from pathlib import Path
-from torch.utils.data import DataLoader
 import torch
-import numpy as np
-from torch.nn import CrossEntropyLoss
-from tqdm import tqdm
-from torch import optim
+from torch import nn
 from mtpgr.config import get_cfg_defaults
 from mtpgr.network import MTPGR
 from mtpgr.utils.log import log
@@ -14,11 +10,11 @@ class Predictor:
     def __init__(self, dataloader, model, ckpt, device):
 
         self.data_loader = dataloader
-        self.model = self._load_ckpt(model, ckpt, device)
+        self.model: nn.Module = self._load_ckpt(model, ckpt, device)
         self.ckpt = ckpt
         self.device = device
 
-    def post_step(self, pred, label):
+    def post_step(self, pred, label, **kwargs):
         """
         Shapes:
             pred: (N*T, C)

@@ -47,7 +47,7 @@ class Trainer:
         log.info("Training...")
         for epoch in tqdm(range(200)):
             self.predictor.run_epoch()
-            self.predictor.save_ckpt()
+        self.predictor.save_ckpt()
 
     def _report(self, pred, label):
         acc = self.acc(pred, label)
@@ -64,7 +64,7 @@ class Trainer:
     def _jaccard(pred, gt, num_classes):
         # Convert to list([gt][pred])
         gt_pred_list = [(np.argmax(pred, axis=-1), gt)]
-        J, Js = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
+        J, _, _ = ChaLearnJaccard(num_classes).mean_jaccard_index(gt_pred_list)
         log.info(f"Jaccard: {J}")
 
     @classmethod

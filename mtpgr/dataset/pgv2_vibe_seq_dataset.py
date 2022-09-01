@@ -40,9 +40,9 @@ class PGv2VIBESeqDataset(Dataset):
         with combine_label_path.open('r') as f:
             self.combine_label_path = json.load(f)
         
-
         self.part_filter = part_filter
         self.use_cam_pose = use_cam_pose
+        self.file_name = vibe_path.stem
 
     def __len__(self):
         return len(self.vibe)
@@ -89,6 +89,9 @@ class PGv2VIBESeqDataset(Dataset):
     #     pose = vibe_output['pose']  # 72 pose params,
     #     pose_VC = pose.reshape((-1, 3))  # (num_keypoints, rotation_3d)
     #     return pose_VC
+
+    def get_name(self) -> str:
+        return self.file_name
 
     @classmethod
     def from_config(cls, cfg):

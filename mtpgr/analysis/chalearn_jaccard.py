@@ -20,9 +20,11 @@ class ChaLearnJaccard:
         """
 
         # Equation 4
-        Jsj: np.ndarray = np.array([self._sequence_jaccard(gt, pred) for gt, pred in gt_pred_list])
-        Js_bar = Jsj.mean()
-        return Js_bar, Jsj
+        j_single_seq = [self._sequence_jaccard(gt, pred) for gt, pred in gt_pred_list]
+        j_matrix = np.array([d["each"] for d in j_single_seq])  # Shape: (num_seq, num_class)
+        Jsj: np.ndarray = np.array([d["sum"] for d in j_single_seq])  # Shape: (num_seq)
+        Js_bar = Jsj.mean()  # Shape: (,)
+        return Js_bar, Jsj, j_matrix
 
     def _sequence_jaccard(self, y_true, y_pred):
         # Equation 2
@@ -33,7 +35,7 @@ class ChaLearnJaccard:
         ls = len(set(y_true))
         Js = j.sum() / ls
 
-        return Js
+        return {"sum": Js, "each": j}
 
 if __name__ == "__main__":
 
