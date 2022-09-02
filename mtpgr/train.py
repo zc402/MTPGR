@@ -47,7 +47,8 @@ class Trainer:
         log.info("Training...")
         for epoch in tqdm(range(500)):
             self.predictor.run_epoch()
-        self.predictor.save_ckpt()
+            if epoch % 100 == 0:
+                self.predictor.save_ckpt()
 
     def _report(self, pred, label):
         acc = self.acc(pred, label)
