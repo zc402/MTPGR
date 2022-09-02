@@ -55,7 +55,7 @@ class Tester():
         self._jaccard(self.result_list, self.num_classes)
         self._confusion_matrix(self.result_list)
 
-    def post_step(self, pred, label):
+    def post_step(self, pred, label, **kwargs):
         """
         In test, 1 step == 1 epoch. N (batch size) = 1.
         Shapes:
@@ -64,7 +64,8 @@ class Tester():
         """
         self.result_list.append({
                 "pred": pred.cpu().numpy(), 
-                "label": label.cpu().numpy()
+                "label": label.cpu().numpy(),
+                "batch_data": kwargs["batch_data"]
             })
 
     @classmethod

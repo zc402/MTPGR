@@ -25,7 +25,7 @@ class Trainer:
 
         self.step = 0
 
-    def post_step(self, pred, label):
+    def post_step(self, pred, label, **kwargs):
         """
         Shapes:
             pred: (N*T, C)
@@ -45,7 +45,7 @@ class Trainer:
 
     def train(self):
         log.info("Training...")
-        for epoch in tqdm(range(200)):
+        for epoch in tqdm(range(500)):
             self.predictor.run_epoch()
         self.predictor.save_ckpt()
 

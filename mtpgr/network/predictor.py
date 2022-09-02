@@ -35,7 +35,7 @@ class Predictor:
             tensor_pred = self.model(tensor_input)  # pred shape: (N*T,C)
             tensor_label = tensor_label.reshape([-1])  # label shape: (N*T,)
 
-            self.post_step(tensor_pred, tensor_label)
+            self.post_step(tensor_pred, tensor_label, batch_data=batch_data)
         self.post_epoch()
 
     @staticmethod

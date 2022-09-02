@@ -12,7 +12,7 @@ class Heights:
         :param pname_id_map: dict {part_name: part_id}
         :param use_cam_pose: Use camera pose parameters
         """
-        # _heights: list_height[list_parts[part_name]]
+        # Elements here must be UNIQUE!
         self._heights_name = [
             ['OP RAnkle', 'OP LAnkle'],
             ['OP RKnee', 'OP LKnee'],

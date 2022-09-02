@@ -9,7 +9,7 @@
 		"version": "0.2.0",
 		"configurations": [
 			{
-				"name": "Python: Current File",
+				"name": "Current File",
 				"type": "python",
 				"request": "launch",
 				"program": "${file}",
@@ -42,7 +42,7 @@
 				"program": "./mtpgr/test.py",
 				"args": 
 				[
-					"-c","no_attention.yaml"
+					"-c","default_model.yaml"
 				],
 				"console": "integratedTerminal",
 				"justMyCode": true,

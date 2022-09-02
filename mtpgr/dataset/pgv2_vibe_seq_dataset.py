@@ -63,7 +63,7 @@ class PGv2VIBESeqDataset(Dataset):
         "joints3d": shape(49, 3), "joints2d_img_coord": shape(49, 2), "bbox": shape(4), frame_ids: shape(,)}
         """
         keypoints = vibe_output['joints3d']
-        # keypoints = self._get_vibe_pose_params(vibe_output)  # Shape: (num_keypoints, 3D_coord)
+        pose = vibe_output['pose'].reshape((-1, 3))
 
         if self.use_cam_pose:
             cam = vibe_output['pred_cam']
@@ -75,9 +75,10 @@ class PGv2VIBESeqDataset(Dataset):
 
         return {
             "kp": keypoints,  # Shape: (V - num_keypoints, C - 3D_coord)
-            "ges": gesture,  # Shape: (L,)
-            "ori": orientation,  # Shape: (L,)
-            "combine": combine,  # Shape: (L,)
+            "ges": gesture,  # Shape: (,)
+            "ori": orientation,  # Shape: (,)
+            "combine": combine,  # Shape: (,)
+            "pose": pose,  # Shape: (J - num_SMPL_joints, C - 3D_coord)
         }
     
 

@@ -33,7 +33,7 @@ class Edges:
     def __init__(self, pname_id_map: dict, use_cam_pose: bool, no_spatial_edges: bool=False):
         if use_cam_pose:  # Use the camera pose as a vertice
             self._edges_name.extend(['OP Neck', 'PRED_CAM'])
-            log.debug("Edges: Using camera features (default)")
+            # log.debug("Edges: Using camera features (default)")
         else:
             log.debug("Edges: Using NO camera mode")
         
