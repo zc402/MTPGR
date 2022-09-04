@@ -117,6 +117,38 @@ class ConfidenceDrawer:
     def _softmax(self, a):
         return np.exp(a)/np.sum(np.exp(a))
 
+class ResultTextDrawer:
+
+    def draw_result_text(self, result_num, ax:Axes):
+        if result_num == 0:
+            ges_text = "Stand In Attention"
+            ori_text = "Not Available"
+        else:
+            ges = (result_num - 1) % 8  # 0 - 7
+            ges_text_list = ['Stop', 'Go Straight', 'Left Turn', 'Left Turn Waiting', 'Right Turn', 'Lane Changing', 'Slow Down', "Pull Over"]
+            ori = (result_num - 1) / 8  # 0 - 3
+            ori_text_list = ['Subject Vehicle', 'Vehicle on the Left', 'Ongoing Vehicle', 'Vehicle on the Right']
+            ges_text = ges_text_list[ges]
+            ori_text = ori_text_list[ori]
+        
+        # Gesture
+        ax.text(0.5, 0.4, "Gesture:", horizontalalignment='center', verticalalignment='center', fontsize=18)
+        ax.text(0.5, 0.3, ges_text, horizontalalignment='center', verticalalignment='center', fontsize=36)
+
+        # Orientation
+        ax.text(0.5, 0.7, "Direction:", horizontalalignment='center', verticalalignment='center', fontsize=18)
+        ax.text(0.5, 0.6, ori_text, horizontalalignment='center', verticalalignment='center', fontsize=30)
+        ax.axis('off')
+        
+        
+class CrossRoadDrawer:
+
+    def draw_cross_road(self, ax:Axes):
+        img_path = Path('docs', 'crossroad.jpg')
+        img = cv2.imread(str(img_path))
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        ax.imshow(img)
+
 
 if __name__ == "__main__":
     # plt.style.use('dark_background')
@@ -147,6 +179,8 @@ if __name__ == "__main__":
     video_path = video_folder / (name + ".m4v")
     frame_drawer = FrameDrawer(video_path)
     confidence_drawer = ConfidenceDrawer()
+    result_text_drawer = ResultTextDrawer()
+    cross_road_drawer = CrossRoadDrawer()
 
     for i in range(3, len(seq_res['label'])):
 
@@ -159,8 +193,11 @@ if __name__ == "__main__":
         frame_drawer.draw_frame(frame_num[i], ax=fig.add_subplot(2, 3, 1))
 
         pred_score = pred[i]  # Shape: (33,)
+        pred_class = np.argmax(pred_score)
   
         confidence_drawer.draw_confidence(pred_score, ax=fig.add_subplot(2, 3, 4))
+        result_text_drawer.draw_result_text(pred_class, ax=fig.add_subplot(2, 3, 5))
+        cross_road_drawer.draw_cross_road(ax=fig.add_subplot(2, 3, 6))
 
         plt.savefig(anime_save_folder / f"{i}.jpg")
         plt.close()    
