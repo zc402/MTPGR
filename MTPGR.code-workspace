@@ -27,7 +27,7 @@
 				"program": "./mtpgr/train.py",
 				"args": 
 				[
-					"-c","no_attention.yaml"
+					"-c","no_camera.yaml"
 				],
 				"console": "integratedTerminal",
 				"justMyCode": true,
@@ -42,7 +42,7 @@
 				"program": "./mtpgr/test.py",
 				"args": 
 				[
-					"-c","default_model.yaml"
+					"-c","no_camera.yaml"
 				],
 				"console": "integratedTerminal",
 				"justMyCode": true,

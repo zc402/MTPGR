@@ -79,6 +79,7 @@ class PGv2VIBESeqDataset(Dataset):
             "ori": orientation,  # Shape: (,)
             "combine": combine,  # Shape: (,)
             "pose": pose,  # Shape: (J - num_SMPL_joints, C - 3D_coord)
+            "frame_ids": vibe_output["frame_ids"],  # Shape: (,)
         }
     
 

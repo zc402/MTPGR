@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.kinematic.sparse_to_dense import SparseToDense
+import cv2
 
 class EdgeDrawer:
 
@@ -75,6 +76,34 @@ class EdgeDrawer:
         self._draw_temporal(ax, points1, points2, color='tab:orange', linestyle='dashed')
         self._draw_temporal(ax, points2, points3, color='tab:green', linestyle='dashed')
 
+class FrameDrawer:
+
+    def __init__(self, video_path: Path) -> None:
+        self.cap = cv2.VideoCapture(str(video_path))
+        self.last_read_num = -1
+
+    def _get_video_frame(self, v_frame_num):
+
+        while self.last_read_num + 1 < v_frame_num:
+            # Skip until corresponding frame.
+            _, _ = self.cap.read()
+            self.last_read_num = self.last_read_num + 1
+        
+        assert self.last_read_num + 1 == v_frame_num
+            # Read next frame
+        ret, frame = self.cap.read()
+        assert ret
+        self.last_read_num = self.last_read_num + 1
+        return frame
+    
+    def draw_frame(self, v_frame_num, ax:Axes):
+        img = self._get_video_frame(v_frame_num)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        ax.imshow(img)
+
+    def close(self):
+        self.cap.release()
+
 
 if __name__ == "__main__":
     # plt.style.use('dark_background')
@@ -93,23 +122,31 @@ if __name__ == "__main__":
 
     seq_res = result[seq_number]
 
-    kp = seq_res['batch_data']['kp']  # Shape: (1, 8767, 16, 3)
+    kp = seq_res['batch_data']['kp'][0]  # Shape: (8767, 16, 3)
+    frame_num = seq_res['batch_data']['frame_ids'][0]  # Shape: (8767,)
+    name = seq_res['batch_data']['name'][0]  # Shape: (,)
 
     edge_drawer = EdgeDrawer()
     # edge_single_save_path = anime_save_folder / 'edge_single'
     # edge_single_save_path.mkdir(exist_ok=True)
+    video_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
+    video_path = video_folder / (name + ".m4v")
+    frame_drawer = FrameDrawer(video_path)
+
     for i in range(3, len(seq_res['label'])):
 
-        fig = plt.figure(figsize=(15, 10))
+        fig = plt.figure(figsize=(30, 20))
 
         # Figures: 1.image 2.spatial 3.temporal 4. 5.confidence_score 6.4-way_road
 
-        edge_drawer.draw_single_character(kp[0, i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
-        edge_drawer.draw_multiple_character(kp[0, i-2], kp[0, i-1], kp[0, i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
-
-        plt.savefig(anime_save_folder / f"{i}.pdf")
+        edge_drawer.draw_single_character(kp[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
+        edge_drawer.draw_multiple_character(kp[i-2], kp[i-1], kp[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
+        frame_drawer.draw_frame(frame_num[i], ax=fig.add_subplot(2, 3, 1))
+        plt.savefig(anime_save_folder / f"{i}.jpg")
         plt.close()    
         print(f"figure {i} saved")
+    
+    frame_drawer.close()
         
 
 
