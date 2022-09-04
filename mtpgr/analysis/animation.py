@@ -3,10 +3,12 @@ import pickle
 from matplotlib.axes import Axes
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
+import cv2
 
 from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.kinematic.sparse_to_dense import SparseToDense
-import cv2
+
 
 class EdgeDrawer:
 
@@ -100,9 +102,20 @@ class FrameDrawer:
         img = self._get_video_frame(v_frame_num)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         ax.imshow(img)
+        ax.set_title("Frame")
 
     def close(self):
         self.cap.release()
+
+class ConfidenceDrawer:
+
+    def draw_confidence(self, pred, ax):
+        pred_softmax = self._softmax(pred)
+        xs = list(range(pred_softmax.shape[0]))
+        ax.bar(xs, pred_softmax)
+        ax.set_title("Confidence")
+    def _softmax(self, a):
+        return np.exp(a)/np.sum(np.exp(a))
 
 
 if __name__ == "__main__":
@@ -125,6 +138,7 @@ if __name__ == "__main__":
     kp = seq_res['batch_data']['kp'][0]  # Shape: (8767, 16, 3)
     frame_num = seq_res['batch_data']['frame_ids'][0]  # Shape: (8767,)
     name = seq_res['batch_data']['name'][0]  # Shape: (,)
+    pred = seq_res['pred']  # Shape: (8767, 33)
 
     edge_drawer = EdgeDrawer()
     # edge_single_save_path = anime_save_folder / 'edge_single'
@@ -132,6 +146,7 @@ if __name__ == "__main__":
     video_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
     video_path = video_folder / (name + ".m4v")
     frame_drawer = FrameDrawer(video_path)
+    confidence_drawer = ConfidenceDrawer()
 
     for i in range(3, len(seq_res['label'])):
 
@@ -142,6 +157,11 @@ if __name__ == "__main__":
         edge_drawer.draw_single_character(kp[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
         edge_drawer.draw_multiple_character(kp[i-2], kp[i-1], kp[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
         frame_drawer.draw_frame(frame_num[i], ax=fig.add_subplot(2, 3, 1))
+
+        pred_score = pred[i]  # Shape: (33,)
+  
+        confidence_drawer.draw_confidence(pred_score, ax=fig.add_subplot(2, 3, 4))
+
         plt.savefig(anime_save_folder / f"{i}.jpg")
         plt.close()    
         print(f"figure {i} saved")
