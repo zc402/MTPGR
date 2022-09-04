@@ -122,22 +122,25 @@ class ResultTextDrawer:
     def draw_result_text(self, result_num, ax:Axes):
         if result_num == 0:
             ges_text = "Stand In Attention"
-            ori_text = "Not Available"
+            commanding_text = "Not Available"
         else:
             ges = (result_num - 1) % 8  # 0 - 7
             ges_text_list = ['Stop', 'Go Straight', 'Left Turn', 'Left Turn Waiting', 'Right Turn', 'Lane Changing', 'Slow Down', "Pull Over"]
-            ori = (result_num - 1) / 8  # 0 - 3
-            ori_text_list = ['Subject Vehicle', 'Vehicle on the Left', 'Ongoing Vehicle', 'Vehicle on the Right']
+            ori = (result_num - 1) // 8  # 0 - 3, FLBR
+            direction_list = ['Subject Vehicle', 'Vehicle on the Left', 'Ongoing Vehicle', 'Vehicle on the Right']
+
+            commanding = [[0, 1, 3, 3,  2, 0, 0, 0], [1,2,0,0, 3,1,1,1], [2,3,1,1,0,2,2,2], [3,0,2,2,1,3,3,3]]
+
             ges_text = ges_text_list[ges]
-            ori_text = ori_text_list[ori]
+            commanding_text = direction_list[commanding[ori][ges]]
         
         # Gesture
         ax.text(0.5, 0.4, "Gesture:", horizontalalignment='center', verticalalignment='center', fontsize=18)
         ax.text(0.5, 0.3, ges_text, horizontalalignment='center', verticalalignment='center', fontsize=36)
 
         # Orientation
-        ax.text(0.5, 0.7, "Direction:", horizontalalignment='center', verticalalignment='center', fontsize=18)
-        ax.text(0.5, 0.6, ori_text, horizontalalignment='center', verticalalignment='center', fontsize=30)
+        ax.text(0.5, 0.7, "Commanding Direction:", horizontalalignment='center', verticalalignment='center', fontsize=18)
+        ax.text(0.5, 0.6, commanding_text, horizontalalignment='center', verticalalignment='center', fontsize=30)
         ax.axis('off')
         
         
@@ -152,6 +155,7 @@ class CrossRoadDrawer:
 
 if __name__ == "__main__":
     # plt.style.use('dark_background')
+    plt.rcParams.update({'font.size':16})
 
     cfg = get_cfg_defaults()
     cfg.merge_from_file('configs/no_camera.yaml')
