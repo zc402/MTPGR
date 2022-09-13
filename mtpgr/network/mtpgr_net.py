@@ -9,7 +9,7 @@ from .subnet import BoneNetwork, SpatialMean
 
 
 class MTPGR(nn.Module):
-    def __init__(self, edges, heights, num_classes, bone_net):
+    def __init__(self, adjacency_matrix, num_classes, bone_net):
         """
         Traffic gesture recognizer
         :param edges: id array of shape (num_edges, 2)
@@ -20,7 +20,7 @@ class MTPGR(nn.Module):
         out_channels = num_classes  # Number of gesture classes
 
         # Build adj matrix with height layering partitioning strategy
-        A = AdjacencyMatrix(edges, heights).get_height_config_adjacency()
+        A = adjacency_matrix.get_height_config_adjacency()
         self.bone = bone_net(in_channels, 256, A)
         self.sml = SpatialMean(256, out_channels)
 
@@ -31,10 +31,12 @@ class MTPGR(nn.Module):
 
     @classmethod
     def from_config(cls, cfg):
-        from mtpgr.kinematic import SparseToDense
-        s2d = SparseToDense.from_config(cfg)
-        heights = s2d.get_dense_id_height_map()
-        edges = s2d.get_dense_edges()
+        # from mtpgr.kinematic import SparseToDense
+        # s2d = SparseToDense.from_config(cfg)
+        # heights = s2d.get_dense_id_height_map()
+        # edges = s2d.get_dense_edges()
         bone_net = BoneNetwork.from_config(cfg)
-        instance = MTPGR(edges, heights, num_classes=cfg.DATASET.NUM_CLASSES, bone_net=bone_net)
+        adjacency_mat = AdjacencyMatrix.from_config(cfg)
+        instance = MTPGR(adjacency_mat, num_classes=cfg.DATASET.NUM_CLASSES, bone_net=bone_net)
+        
         return instance

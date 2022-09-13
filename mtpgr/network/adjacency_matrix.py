@@ -1,19 +1,19 @@
 import numpy as np
 import torch
-
+from mtpgr.kinematic.parts import Parts
 # from network.kinematic import edges, heights, p2pat
 
 
 class AdjacencyMatrix:
     # Adj matrix according to height layering partitioning strategy
 
-    def __init__(self, edges, heights):
+    def __init__(self, part_names, heights, edges):
         """
 
         :param edges: spatially connected parts. 2d array of shape (num_edge, 2)
         :param heights: dict of height values. dict[part] = height
         """
-        num_nodes = len(heights.keys())
+        num_nodes = len(part_names)
 
         adjacency = np.zeros((num_nodes, num_nodes))  # Adjacency matrix, 
 
@@ -62,3 +62,13 @@ class AdjacencyMatrix:
     def get_height_config_adjacency(self):
         """返回以关键点高度进行配置的邻接矩阵，比邻接矩阵多一个label维度"""
         return self.A
+
+    @classmethod
+    def from_config(cls, cfg):
+        parts = Parts.from_config(cfg)
+        part_names = parts.get_parts()
+        heights = parts.get_heights()
+        edges = parts.get_edge_indices()
+        inst = AdjacencyMatrix(part_names=part_names, heights=heights, edges=edges)
+        return inst
+

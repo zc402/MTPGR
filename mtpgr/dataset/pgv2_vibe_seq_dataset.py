@@ -1,9 +1,10 @@
 from pathlib import Path
 import pickle
 import json
+from typing import Callable
 import numpy as np
 from torch.utils.data import Dataset
-
+from mtpgr.kinematic.parts import Parts
 
 class PGv2VIBESeqDataset(Dataset):
     """
@@ -18,8 +19,9 @@ class PGv2VIBESeqDataset(Dataset):
                  gesture_label_path: Path,
                  ori_label_path: Path,
                  combine_label_path: Path,
-                 part_filter: list=None,
-                 use_cam_pose: bool=False):
+                #  use_cam_pose: bool=False
+                 parts: Parts
+                 ):
         """
         Args:
             vibe_path (Path): Path of the vibe output (SMPL-X parameters)
@@ -40,9 +42,9 @@ class PGv2VIBESeqDataset(Dataset):
         with combine_label_path.open('r') as f:
             self.combine_label_path = json.load(f)
         
-        self.part_filter = part_filter
-        self.use_cam_pose = use_cam_pose
+        # self.use_cam_pose = use_cam_pose
         self.file_name = vibe_path.stem
+        self.parts = parts
 
     def __len__(self):
         return len(self.vibe)
@@ -62,23 +64,27 @@ class PGv2VIBESeqDataset(Dataset):
         {"pred_cam": ndarray - shape(3), "orig_cam": shape(4), "pose": shape(72), "betas": shape(10),
         "joints3d": shape(49, 3), "joints2d_img_coord": shape(49, 2), "bbox": shape(4), frame_ids: shape(,)}
         """
-        keypoints = vibe_output['joints3d']
+        joints3d = vibe_output['joints3d']
+
         pose = vibe_output['pose'].reshape((-1, 3))
 
-        if self.use_cam_pose:
-            cam = vibe_output['pred_cam']
-            cam = cam.reshape((1, 3))
-            keypoints = np.concatenate((keypoints, cam))
+        # if self.use_cam_pose:
+        #     cam = vibe_output['pred_cam']
+        #     cam = cam.reshape((1, 3))
+        #     keypoints = np.concatenate((keypoints, cam))
 
-        if self.part_filter:
-            keypoints = keypoints[self.part_filter]
+        # if self.part_filter:
+        #     keypoints = keypoints[self.part_filter]
+        
+        fused_features = self.parts.get_features(VIBE_j3D=joints3d, VIBE_j2D=None, SMPL_pose=pose)
 
         return {
-            "kp": keypoints,  # Shape: (V - num_keypoints, C - 3D_coord)
+            "ff": fused_features,  # Shape: (Vf - num_points, C - 3D_coord)
+            "j3d": joints3d,  # Shape: (V - num_keypoints, C - 3D_coord)
+            "pose": pose,  # Shape: (J - num_SMPL_joints, C - 3D_coord)
             "ges": gesture,  # Shape: (,)
             "ori": orientation,  # Shape: (,)
             "combine": combine,  # Shape: (,)
-            "pose": pose,  # Shape: (J - num_SMPL_joints, C - 3D_coord)
             "frame_ids": vibe_output["frame_ids"],  # Shape: (,)
         }
     
@@ -97,10 +103,10 @@ class PGv2VIBESeqDataset(Dataset):
 
     @classmethod
     def from_config(cls, cfg):
-        from mtpgr.kinematic import SparseToDense
+        # from mtpgr.kinematic import SparseToDense
 
-        s2d = SparseToDense.from_config(cfg)
-        part_filter = s2d.get_s2d_indices()  # Sparse indices of each joint. Used to extract dense coordinates.
+        # s2d = SparseToDense.from_config(cfg)
+        # part_filter = s2d.get_s2d_indices()  # Sparse indices of each joint. Used to extract dense coordinates.
 
         def new_initializer(video_name: str):
             dataset_path: Path = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR
@@ -113,8 +119,9 @@ class PGv2VIBESeqDataset(Dataset):
                 gesture_label_path,
                 ori_label_path,
                 combine_label_path,
-                part_filter=part_filter,
-                use_cam_pose=cfg.MODEL.USE_CAMERA_POSE
+                # part_filter=part_filter,
+                # use_cam_pose=cfg.MODEL.USE_CAMERA_POSE
+                parts=Parts.from_config(cfg)
             )
 
         return new_initializer

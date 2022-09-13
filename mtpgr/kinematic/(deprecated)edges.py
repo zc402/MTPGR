@@ -56,5 +56,5 @@ class Edges:
             return Edges(parts.get_name_id_map(), use_cam_pose=False, no_spatial_edges=True)
         return Edges(parts.get_name_id_map(), use_cam_pose=cfg.MODEL.USE_CAMERA_POSE)
 
-
+    
 

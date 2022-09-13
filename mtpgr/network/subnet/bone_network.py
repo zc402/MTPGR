@@ -2,7 +2,6 @@ import torch
 
 from mtpgr.network.subnet.layers.st_layer import STLayer
 from torch import nn
-from mtpgr.network.adjacency_matrix import AdjacencyMatrix
 from mtpgr.utils.log import log
 
 

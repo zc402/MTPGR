@@ -28,7 +28,7 @@ class Predictor:
     def run_epoch(self):
         for batch_data in self.data_loader:
 
-            tensor_input = batch_data["kp"].to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
+            tensor_input = batch_data["ff"].to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
             tensor_input = torch.permute(tensor_input, (0, 3, 1, 2))
             tensor_label = batch_data["combine"].to(self.device)  # label shape: (N,T)
 
