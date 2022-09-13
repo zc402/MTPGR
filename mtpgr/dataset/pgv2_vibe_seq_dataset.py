@@ -1,3 +1,4 @@
+from math import pi
 from pathlib import Path
 import pickle
 import json
@@ -67,6 +68,7 @@ class PGv2VIBESeqDataset(Dataset):
         joints3d = vibe_output['joints3d']
 
         pose = vibe_output['pose'].reshape((-1, 3))
+        pose = pose / pi
 
         # if self.use_cam_pose:
         #     cam = vibe_output['pred_cam']
