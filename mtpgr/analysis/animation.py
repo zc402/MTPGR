@@ -31,7 +31,7 @@ class EdgeDrawer:
         Expect keypoint shape: (49, 3)"""
         # s2d = SparseToDense.from_config(cfg)
         # edge_idx = s2d.get_dense_edges()  # (edge, 2). Index of joints to form edges
-        edge_idx = Parts(False).get_edge_indices()
+        edge_idx = Parts(False, False).get_edge_indices()
 
         # Points
         pxs = joints[:, 0] + offset
@@ -47,7 +47,7 @@ class EdgeDrawer:
         
         return points, edges
 
-    def draw_single_character(self, joints, ax):
+    def draw_spatial(self, joints, ax):
         """Draw a single character with spatial edges"""
         ax.set_title("Spatial Edges")
         ax.set_xlim(-0.6, 0.6)
@@ -57,7 +57,7 @@ class EdgeDrawer:
         pt, edge = self._points_and_edges(joints)
         self._draw_spatial(ax, pt, edge, linewidth=2)
 
-    def draw_multiple_character(self, j1, j2, j3, ax):
+    def draw_spatial_temporal(self, j1, j2, j3, ax):
         """Draw multiple character with spatial and temporal edges"""
         ax.set_title("Temporal Edges")
         ax.set_xlim(0, 2)
@@ -192,8 +192,8 @@ if __name__ == "__main__":
 
         # Figures: 1.image 2.spatial 3.temporal 4. 5.confidence_score 6.4-way_road
 
-        edge_drawer.draw_single_character(j3D[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
-        edge_drawer.draw_multiple_character(j3D[i-2], j3D[i-1], j3D[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
+        edge_drawer.draw_spatial(j3D[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
+        edge_drawer.draw_spatial_temporal(j3D[i-2], j3D[i-1], j3D[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
         frame_drawer.draw_frame(frame_num[i], ax=fig.add_subplot(2, 3, 1))
 
         pred_score = pred[i]  # Shape: (33,)

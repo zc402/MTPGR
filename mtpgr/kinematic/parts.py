@@ -103,6 +103,20 @@ POSE_HEIGHT = {
     'Neck': 7, 'Head': 8
 }  
 
+# Edges between POSE vertices
+POSE_INTERNAL_EDGES = [
+    ('L_Ankle', 'L_Knee'), ('R_Ankle', 'R_Knee'),
+    ('L_Knee', 'L_Hip'), ('R_Knee', 'R_Hip'),
+    ('L_Hip', 'R_Hip'),
+    ('L_Hip', 'L_Shoulder'), ('R_Hip', 'R_Shoulder'),
+    ('L_Shoulder', 'L_Elbow'), ('R_Shoulder', 'R_Elbow'),
+    ('L_Elbow', 'L_Wrist'), ('R_Elbow', 'R_Wrist'),
+    ('L_Shoulder', 'R_Shoulder'),
+    ('L_Shoulder', 'Neck'), ('R_Shoulder', 'Neck'),
+    ('Neck', 'Head'),
+]
+
+# Edges between POSE and J3D
 POSE_J3D_EDGES = [('L_Ankle', 'OP LAnkle'), ('R_Ankle', 'OP RAnkle'), 
 ('L_Knee', 'OP LKnee'), ('R_Knee', 'OP RKnee'), 
 ('L_Hip', 'OP LHip'), ('R_Hip', 'OP RHip'), 
@@ -138,6 +152,7 @@ class Parts:
             self.edges.extend(J3D_EDGES)
             self.edges.extend(CUSTOM_EDGES)
             self.edges.extend(POSE_J3D_EDGES)
+            self.edges.extend(POSE_INTERNAL_EDGES)
 
         elif use_cam_pose:
             log.debug("use camera pose")
@@ -152,7 +167,9 @@ class Parts:
         else:
             log.debug("no camera pose")
             self.part_names.extend(J3D_IN_USE)
+
             self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
+
             self.edges.extend(J3D_EDGES)
 
     def get_edge_indices(self) -> List[Tuple[int, int]]:
@@ -201,19 +218,3 @@ class Parts:
         return Parts(use_cam_pose=cfg.MODEL.USE_CAMERA_POSE, use_rotations=cfg.MODEL.USE_ROTATIONS)
 
 
-# class Parts:
-#     def __init__(self, use_cam_pose: bool):
-#         """
-
-#         """
-#         self.jname_to_idx = {name: idx for idx, name in enumerate(VIBE_3D_joints)}  # {part_name: part_idx}
-#         if use_cam_pose:
-#             assert (48 in self.jname_to_idx.values()) and (49 not in self.jname_to_idx.values())
-#             self.jname_to_idx.update({'PRED_CAM': 49})
-
-#     def get_name_id_map(self):
-#         return self.jname_to_idx
-
-#     @classmethod
-#     def from_config(cls, cfg):
-#         return Parts(cfg.MODEL.USE_CAMERA_POSE)

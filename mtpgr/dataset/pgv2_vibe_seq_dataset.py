@@ -82,7 +82,7 @@ class PGv2VIBESeqDataset(Dataset):
 
         return {
             "ff": fused_features,  # Shape: (Vf - num_points, C - 3D_coord)
-            "j3d": joints3d,  # Shape: (V - num_keypoints, C - 3D_coord)
+            "kp": joints3d,  # Shape: (V - num_keypoints, C - 3D_coord)
             "pose": pose,  # Shape: (J - num_SMPL_joints, C - 3D_coord)
             "ges": gesture,  # Shape: (,)
             "ori": orientation,  # Shape: (,)

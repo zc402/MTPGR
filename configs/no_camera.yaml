@@ -1,4 +1,5 @@
 MODEL:
   USE_CAMERA_POSE: False
+  USE_ROTATIONS: False
   MTPGR_CKPT: 'no_cam.ckpt'
 OUTPUT: "no_cam"
