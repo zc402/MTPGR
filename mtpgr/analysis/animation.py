@@ -7,8 +7,7 @@ import torch
 import cv2
 
 from mtpgr.config.defaults import get_cfg_defaults
-from mtpgr.kinematic.sparse_to_dense import SparseToDense
-
+from mtpgr.kinematic.parts import Parts
 
 class EdgeDrawer:
 
@@ -30,8 +29,9 @@ class EdgeDrawer:
     def _points_and_edges(self, joints, offset=0.0):
         """Return points and edges array with matplotlib format
         Expect keypoint shape: (49, 3)"""
-        s2d = SparseToDense.from_config(cfg)
-        edge_idx = s2d.get_dense_edges()  # (edge, 2). Index of joints to form edges
+        # s2d = SparseToDense.from_config(cfg)
+        # edge_idx = s2d.get_dense_edges()  # (edge, 2). Index of joints to form edges
+        edge_idx = Parts(False).get_edge_indices()
 
         # Points
         pxs = joints[:, 0] + offset
@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
     seq_res = result[seq_number]
 
-    kp = seq_res['batch_data']['kp'][0]  # Shape: (8767, 16, 3)
+    j3D = seq_res['batch_data']['kp'][0]  # Shape: (8767, 16, 3)
     frame_num = seq_res['batch_data']['frame_ids'][0]  # Shape: (8767,)
     name = seq_res['batch_data']['name'][0]  # Shape: (,)
     pred = seq_res['pred']  # Shape: (8767, 33)
@@ -192,8 +192,8 @@ if __name__ == "__main__":
 
         # Figures: 1.image 2.spatial 3.temporal 4. 5.confidence_score 6.4-way_road
 
-        edge_drawer.draw_single_character(kp[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
-        edge_drawer.draw_multiple_character(kp[i-2], kp[i-1], kp[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
+        edge_drawer.draw_single_character(j3D[i], ax=fig.add_subplot(2, 3, 2, projection='3d'))
+        edge_drawer.draw_multiple_character(j3D[i-2], j3D[i-1], j3D[i], ax=fig.add_subplot(2, 3, 3, projection='3d'))
         frame_drawer.draw_frame(frame_num[i], ax=fig.add_subplot(2, 3, 1))
 
         pred_score = pred[i]  # Shape: (33,)

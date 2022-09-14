@@ -36,6 +36,7 @@ _C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
 _C.MODEL.ATTENTION = True # Use attention in GCN
 _C.MODEL.USE_CAMERA_POSE = True  # Add camera pose to joint features
+_C.MODEL.USE_ROTATIONS = True
 _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 _C.MODEL.NO_SPATIAL_EDGES = False  # No spatial edges on the graph, for ablation study.

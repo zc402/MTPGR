@@ -49,6 +49,7 @@ class Trainer:
             self.predictor.run_epoch()
             if epoch % 100 == 0:
                 self.predictor.save_ckpt()
+        self.predictor.save_ckpt()
 
     def _report(self, pred, label):
         acc = self.acc(pred, label)

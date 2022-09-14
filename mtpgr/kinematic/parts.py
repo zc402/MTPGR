@@ -84,8 +84,32 @@ J3D_EDGES = [
         ('OP LKnee', 'OP LAnkle'),
     ]
 
+# Pose: theta, SMPL Joint rotations.
+POSE_IN_USE = ['L_Ankle', 'R_Ankle', 
+'L_Knee', 'R_Knee', 
+'L_Hip', 'R_Hip', 
+'L_Shoulder', 'R_Shoulder', 
+'L_Elbow', 'R_Elbow', 
+'L_Wrist', 'R_Wrist', 
+'Neck', 'Head']  # No pelvis, as it is already used in CUSTOM set
 
-POSE_HEIGHT = {}  # Pose: theta, SMPL Joint rotations.
+POSE_HEIGHT = {
+    'L_Ankle': 0, 'R_Ankle': 0,
+    'L_Knee': 1, 'R_Knee': 1,
+    'L_Hip': 2, 'R_Hip': 2,
+    'L_Wrist': 4, 'R_Wrist': 4,
+    'L_Elbow': 5, 'R_Elbow': 5,
+    'L_Shoulder': 6, 'R_Shoulder':6,
+    'Neck': 7, 'Head': 8
+}  
+
+POSE_J3D_EDGES = [('L_Ankle', 'OP LAnkle'), ('R_Ankle', 'OP RAnkle'), 
+('L_Knee', 'OP LKnee'), ('R_Knee', 'OP RKnee'), 
+('L_Hip', 'OP LHip'), ('R_Hip', 'OP RHip'), 
+('L_Shoulder', 'OP LShoulder'), ('R_Shoulder', 'OP RShoulder'),
+('L_Elbow', 'OP LElbow'), ('R_Elbow', 'OP RElbow'),
+('L_Wrist', 'OP LWrist'), ('R_Wrist', 'OP RWrist'),
+('Neck', 'OP Neck')]
 
 CUSTOM_IN_USE = ['Pelvis']  # From SMPL POSE
 
@@ -94,21 +118,37 @@ CUSTOM_HEIGHT = {'Pelvis': 100}  # Root rotation, connects to joints.
 CUSTOM_EDGES = [(joint, 'Pelvis') for joint in J3D_HEIGHTS.keys()]  # Connect each joints(J3D) to pelvis(theta)
 
 class Parts:
-    def __init__(self, use_cam_pose: bool):
+    def __init__(self, use_cam_pose: bool=False, use_rotations: bool=False):
         self.use_cam_pose = use_cam_pose
+        self.use_rotations = use_rotations
         self.part_names: List[str] = []  # All part names. Shape:(V,)
         self.heights: List[int] = []  # Heights. Same order with part_names. Shape:(V,)
         self.edges: List[Tuple(str, str)] = []  # Edges. Shape:(E, 2)
 
-        if use_cam_pose:
+        if use_rotations:
+            log.debug("use rotations (and camera pose)")
+            self.part_names.extend(J3D_IN_USE)
+            self.part_names.extend(CUSTOM_IN_USE)
+            self.part_names.extend(POSE_IN_USE)
+
+            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
+            self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
+            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
+
+            self.edges.extend(J3D_EDGES)
+            self.edges.extend(CUSTOM_EDGES)
+            self.edges.extend(POSE_J3D_EDGES)
+
+        elif use_cam_pose:
             log.debug("use camera pose")
             self.part_names.extend(J3D_IN_USE)
             self.part_names.extend(CUSTOM_IN_USE)
+
             self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
             self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
+
             self.edges.extend(J3D_EDGES)
             self.edges.extend(CUSTOM_EDGES)
-            
         else:
             log.debug("no camera pose")
             self.part_names.extend(J3D_IN_USE)
@@ -137,16 +177,28 @@ class Parts:
         j3D_values = VIBE_j3D[vibe_j3D_indices]
         features.extend(j3D_values)
 
-        if self.use_cam_pose:
-            smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-            custom_values = SMPL_pose[smpl_pose_indices]
+        if self.use_rotations:
+            # Read pelvis root rotation
+            custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
+            custom_values = SMPL_pose[custom_smpl_pose_indices]
             features.extend(custom_values)
-        
+
+            # Read part rotations (no root)
+            pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
+            pose_values = SMPL_pose[pose_in_use_indices]
+            features.extend(pose_values)
+
+        elif self.use_cam_pose:
+            custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
+            custom_values = SMPL_pose[custom_smpl_pose_indices]
+            features.extend(custom_values)
+        else:
+            raise NotImplementedError()
         return features
     
     @classmethod
     def from_config(cls, cfg):
-        return Parts(cfg.MODEL.USE_CAMERA_POSE)
+        return Parts(use_cam_pose=cfg.MODEL.USE_CAMERA_POSE, use_rotations=cfg.MODEL.USE_ROTATIONS)
 
 
 # class Parts:
