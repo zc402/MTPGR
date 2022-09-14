@@ -15,10 +15,10 @@ class SpatialMean(nn.Module):
         super().__init__()
 
         self.fcn = nn.Sequential(
+            nn.Dropout(p=0.5, inplace=True),
             nn.Linear(in_channels, out_channels),
             # nn.ReLU(inplace=True),  # new
             # nn.Linear(128, out_channels),  # new
-            nn.Dropout(p=0.5, inplace=True),
         )
 
     def forward(self, x):

@@ -28,8 +28,7 @@ FAKE_POSE_INTERNAL_EDGES = [
     ('OP LShoulder', 'OP LElbow'), ('OP RShoulder', 'OP RElbow'),
     ('OP LElbow', 'OP LWrist'), ('OP RElbow', 'OP RWrist'),
     ('OP LShoulder', 'OP RShoulder'),
-    ('OP LShoulder', 'Neck'), ('OP RShoulder', 'Neck'),
-    ('Neck', 'Head'),
+    ('OP LShoulder', 'OP Neck'), ('OP RShoulder', 'OP Neck'),
 ]
 
 FAKE_POSE_J3D_EDGES = [(a, a) for a in FAKE_POSE_IN_USE]
@@ -62,7 +61,10 @@ def to_matplotlib_axes(kps):
 
 
 def draw_points(VIBE_j3d: np.ndarray):
+
+    plt.figure(figsize=(20, 20))
     ax = plt.axes(projection ='3d')
+
     ax.set_xlabel('x')
     ax.set_ylabel('y')
     ax.set_zlabel('z')
@@ -70,13 +72,32 @@ def draw_points(VIBE_j3d: np.ndarray):
     ax.set_ylim(-1, 1)
     ax.set_zlim(-0.75, 1.25)
 
+    # --------Keypoints--------
     j3d_points = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[name]] for name in J3D_IN_USE]
-    pose_points = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[name]] for name in FAKE_POSE_IN_USE]
 
-    ax.scatter3D(*zip(*j3d_points))
+    j3d_tl = [(x,y+0.2, z) for x,y,z in VIBE_j3d]  # The y-translate of j3d for showing the pose. Prevent overlap on graph.
+    pose_points = [j3d_tl[VIBE_J3D_NAME_TO_IDX[name]] for name in FAKE_POSE_IN_USE]
+    # pose_points = [(x, y+0.2, z) for x,y,z in pose_points]  # Prevent overlap
 
+    ax.scatter3D(*zip(*j3d_points), color='tab:green')
+    ax.scatter3D(*zip(*pose_points), color='tab:orange')
+
+    # ----------Edges-----------
     j3d_edge_indices = [(VIBE_J3D_NAME_TO_IDX[a], VIBE_J3D_NAME_TO_IDX[b]) for a,b in J3D_EDGES]
     j3d_edges = [(VIBE_j3d[a], VIBE_j3d[b]) for a, b in j3d_edge_indices]
+    for edge in j3d_edges:
+        xyz = zip(*edge)  # [(xyz1), (xyz2), (xyz3)]
+        ax.plot3D(*xyz, color='tab:olive')
+
+    pose_internal_edges = [(j3d_tl[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
+        for a, b in FAKE_POSE_INTERNAL_EDGES]
+    for edge in pose_internal_edges:
+        ax.plot3D(*zip(*edge), color='tab:pink')
+
+    pose_j3d_edges = [(VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
+        for a, b in FAKE_POSE_J3D_EDGES]
+    for edge in pose_j3d_edges:
+        ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dotted')
 
     plt.show()
 
@@ -87,7 +108,7 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size':16})
 
     cfg = get_cfg_defaults()
-    cfg.merge_from_file('configs/no_camera.yaml')
+    cfg.merge_from_file('configs/default_model.yaml')
     result_path = Path('output', cfg.OUTPUT, 'result.pkl')
 
     with result_path.open('rb') as f:
