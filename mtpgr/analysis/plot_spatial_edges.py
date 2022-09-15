@@ -4,6 +4,8 @@ import pickle
 from matplotlib.axes import Axes
 import numpy as np
 import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d.art3d as art3d
+from matplotlib.patches import Circle, Rectangle
 import torch
 import cv2
 
@@ -79,25 +81,49 @@ def draw_points(VIBE_j3d: np.ndarray):
     pose_points = [j3d_tl[VIBE_J3D_NAME_TO_IDX[name]] for name in FAKE_POSE_IN_USE]
     # pose_points = [(x, y+0.2, z) for x,y,z in pose_points]  # Prevent overlap
 
-    ax.scatter3D(*zip(*j3d_points), color='tab:green')
-    ax.scatter3D(*zip(*pose_points), color='tab:orange')
+    ax.scatter3D(*zip(*j3d_points), color='tab:green', marker='o', s=80)
+    ax.scatter3D(*zip(*pose_points), color='tab:orange', marker='v', s=80)
 
     # ----------Edges-----------
+    # J3D
     j3d_edge_indices = [(VIBE_J3D_NAME_TO_IDX[a], VIBE_J3D_NAME_TO_IDX[b]) for a,b in J3D_EDGES]
     j3d_edges = [(VIBE_j3d[a], VIBE_j3d[b]) for a, b in j3d_edge_indices]
     for edge in j3d_edges:
         xyz = zip(*edge)  # [(xyz1), (xyz2), (xyz3)]
         ax.plot3D(*xyz, color='tab:olive')
 
+    # Pose internal
     pose_internal_edges = [(j3d_tl[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
         for a, b in FAKE_POSE_INTERNAL_EDGES]
     for edge in pose_internal_edges:
         ax.plot3D(*zip(*edge), color='tab:pink')
 
+    # Pose-j3d
     pose_j3d_edges = [(VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
         for a, b in FAKE_POSE_J3D_EDGES]
     for edge in pose_j3d_edges:
-        ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dotted')
+        ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dashed')
+
+    # camera
+    camera = (0, -0.5, 1.0)
+    ax.scatter3D(*camera, color='tab:red', marker='*', s=100)
+
+    camera_edges = [(camera, VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]]) for a in J3D_IN_USE]
+    for edge in camera_edges:
+        ax.plot3D(*zip(*edge), color='silver', linestyle='dotted')
+
+    # Height surface
+    cmap = plt.get_cmap('Greys')
+    
+    representative_joints = ['OP LAnkle', 'OP LKnee', 'OP LHip', 'OP MidHip', 'OP LElbow', 'OP LShoulder', 'OP Neck']
+    color_range = np.linspace(0.8, 0.3, len(representative_joints))
+    colors = [cmap(n) for n in color_range]
+    repj_heights = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]][2] + 0.08 for a in representative_joints]
+    repj_heights[2] = repj_heights[2] - 0.05
+    for n, h in enumerate(repj_heights):
+        p = Rectangle((-0.3, -0.3), 0.6, 0.6, alpha=0.6, color=colors[n])
+        ax.add_patch(p)
+        art3d.pathpatch_2d_to_3d(p, z=h, zdir="z")
 
     plt.show()
 
