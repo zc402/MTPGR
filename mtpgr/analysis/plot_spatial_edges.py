@@ -105,7 +105,7 @@ def draw_points(VIBE_j3d: np.ndarray):
         ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dashed')
 
     # camera
-    camera = (0, -0.5, 1.0)
+    camera = (0, -0.5, 1.1)
     ax.scatter3D(*camera, color='tab:red', marker='*', s=100)
 
     camera_edges = [(camera, VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]]) for a in J3D_IN_USE]
@@ -115,7 +115,7 @@ def draw_points(VIBE_j3d: np.ndarray):
     # Height surface
     cmap = plt.get_cmap('Greys')
     
-    representative_joints = ['OP LAnkle', 'OP LKnee', 'OP LHip', 'OP MidHip', 'OP LElbow', 'OP LShoulder', 'OP Neck']
+    representative_joints = ['OP LAnkle', 'OP LKnee', 'OP LHip', 'OP MidHip', 'OP LElbow', 'OP LShoulder', 'OP Neck', 'OP Nose']
     color_range = np.linspace(0.8, 0.3, len(representative_joints))
     colors = [cmap(n) for n in color_range]
     repj_heights = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]][2] + 0.08 for a in representative_joints]
