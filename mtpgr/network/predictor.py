@@ -7,12 +7,13 @@ from mtpgr.utils.log import log
 
 # joint xy coords -> gcn -> fcn
 class Predictor:
-    def __init__(self, dataloader, model, ckpt, device):
+    def __init__(self, dataloader, model, ckpt, device, num_classes=33):
 
         self.data_loader = dataloader
         self.model: nn.Module = self._load_ckpt(model, ckpt, device)
         self.ckpt = ckpt
         self.device = device
+        self.num_classes = num_classes
 
     def post_step(self, pred, label, **kwargs):
         """
@@ -30,7 +31,14 @@ class Predictor:
 
             tensor_input = batch_data["ff"].to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
             tensor_input = torch.permute(tensor_input, (0, 3, 1, 2))
-            tensor_label = batch_data["combine"].to(self.device)  # label shape: (N,T)
+            if self.num_classes == 33:  # Ges and ori
+                log.debug("Label: 33 (combined gesture and orientations)")
+                tensor_label = batch_data["combine"].to(self.device)  # label shape: (N,T)
+            elif self.num_classes == 9:  # Only consider gestures
+                log.debug("Label:9 (gestures only)")
+                tensor_label = batch_data["ges"].to(self.device)
+            else:
+                raise NotImplementedError()
 
             tensor_pred = self.model(tensor_input)  # pred shape: (N*T,C)
             tensor_label = tensor_label.reshape([-1])  # label shape: (N*T,)
@@ -60,5 +68,5 @@ class Predictor:
         model = MTPGR.from_config(cfg)
         device = torch.device(cfg.MODEL.DEVICE)
         ckpt = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.MTPGR_CKPT
-        instance = Predictor(data_loader, model, ckpt, device)
+        instance = Predictor(data_loader, model, ckpt, device, num_classes=cfg.DATASET.NUM_CLASSES)
         return instance

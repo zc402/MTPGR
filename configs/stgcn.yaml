@@ -1,0 +1,6 @@
+MODEL:
+  MTPGR_CKPT: 'stgcn.ckpt'
+  STRATEGY: "SCPS"
+  USE_CAMERA_POSE: False
+  USE_ROTATIONS: False
+OUTPUT: 'stgcn'

@@ -210,7 +210,7 @@ class Parts:
             custom_values = SMPL_pose[custom_smpl_pose_indices]
             features.extend(custom_values)
         else:
-            raise NotImplementedError()
+            pass  # skeleton only
         return features
     
     @classmethod

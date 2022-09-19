@@ -45,9 +45,9 @@ class Trainer:
 
     def train(self):
         log.info("Training...")
-        for epoch in tqdm(range(500)):
+        for epoch in tqdm(range(200)):
             self.predictor.run_epoch()
-            if epoch % 100 == 0:
+            if epoch % 50 == 0:
                 self.predictor.save_ckpt()
         self.predictor.save_ckpt()
 
