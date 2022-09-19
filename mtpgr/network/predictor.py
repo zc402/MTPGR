@@ -14,6 +14,12 @@ class Predictor:
         self.ckpt = ckpt
         self.device = device
         self.num_classes = num_classes
+        if self.num_classes == 33:  # Ges and ori
+            log.debug("Label: 33 (combined gesture and orientations)")
+        elif self.num_classes == 9:  # Only consider gestures
+            log.debug("Label:9 (gestures only)")
+        else:
+            raise NotImplementedError()
 
     def post_step(self, pred, label, **kwargs):
         """
@@ -32,10 +38,8 @@ class Predictor:
             tensor_input = batch_data["ff"].to(self.device)  # shape: (N,T,V,C), network input expect: (N,C,T,V)
             tensor_input = torch.permute(tensor_input, (0, 3, 1, 2))
             if self.num_classes == 33:  # Ges and ori
-                log.debug("Label: 33 (combined gesture and orientations)")
                 tensor_label = batch_data["combine"].to(self.device)  # label shape: (N,T)
             elif self.num_classes == 9:  # Only consider gestures
-                log.debug("Label:9 (gestures only)")
                 tensor_label = batch_data["ges"].to(self.device)
             else:
                 raise NotImplementedError()

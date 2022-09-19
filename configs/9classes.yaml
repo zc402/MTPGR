@@ -1,5 +1,5 @@
 MODEL:
-  MTPGR_CKPT: 'ignore_orientation.ckpt'
+  MTPGR_CKPT: '9classes.ckpt'
 DATASET:
   NUM_CLASSES: 9
-OUTPUT: 'ignore_orientation.pkl'
+OUTPUT: '9classes.pkl'
