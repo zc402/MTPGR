@@ -10,19 +10,23 @@ class STLayer(nn.Module):
     def __init__(self,
                  in_channels: int,
                  out_channels: int,
-                 num_spatial_labels: int):
+                 num_spatial_labels: int,
+                 stride: int=1):
         super().__init__()
 
-        self.residual = nn.Sequential(
-            nn.Conv2d(
-                in_channels,
-                out_channels,
-                kernel_size=1,
-                stride=(1, 1)),
-            nn.BatchNorm2d(out_channels),
-        )
+        if (in_channels == out_channels) and (stride == 1):
+            self.residual = lambda x: x
+        else:
+            self.residual = nn.Sequential(
+                nn.Conv2d(
+                    in_channels,
+                    out_channels,
+                    kernel_size=1,
+                    stride=(stride, 1)),
+                nn.BatchNorm2d(out_channels),
+            )
         self.gcn = GCN(in_channels, out_channels, num_spatial_labels)
-        self.tcn = TCN(out_channels, t_kernel_size=9)
+        self.tcn = TCN(out_channels, t_kernel_size=9, stride=stride)
         
         self.relu = nn.ReLU(inplace=True)
 

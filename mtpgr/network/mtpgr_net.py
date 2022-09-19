@@ -20,7 +20,8 @@ class MTPGR(nn.Module):
         out_channels = num_classes  # Number of gesture classes
 
         # Build adj matrix with height layering partitioning strategy
-        A = adjacency_matrix.get_height_config_adjacency()
+        A = adjacency_matrix.get_adjacency()
+        
         self.bone = bone_net(in_channels, 256, A)
         self.sml = SpatialMean(256, out_channels)
 

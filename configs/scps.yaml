@@ -1,0 +1,4 @@
+MODEL:
+  MTPGR_CKPT: 'scps.ckpt'
+  STRATEGY: "SCPS"
+OUTPUT: 'scps'
