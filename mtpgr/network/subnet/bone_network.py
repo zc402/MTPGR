@@ -36,10 +36,10 @@ class BoneNetwork(nn.Module):
         elif depth == 4:
             log.debug("GCN depth: 4")
             self.st_layers = nn.ModuleList((
-                STLayer(in_channels, 64, num_spatial_labels),
-                STLayer(64, 128,  num_spatial_labels),
-                STLayer(128, 256, num_spatial_labels),
-                STLayer(256, out_channels, num_spatial_labels),
+                STLayer(in_channels, 32, num_spatial_labels),
+                STLayer(32, 64,  num_spatial_labels),
+                STLayer(64, 128, num_spatial_labels),
+                STLayer(128, out_channels, num_spatial_labels),
             ))
         else:
             raise NotImplementedError()
