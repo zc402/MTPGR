@@ -1,3 +1,4 @@
 MODEL:
   MTPGR_CKPT: 'mtpgr_cam.ckpt'
+  GCN_DEPTH: 4
 OUTPUT: 'default_model'
