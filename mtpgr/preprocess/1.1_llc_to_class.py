@@ -21,10 +21,11 @@ def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):
         label_json = json5.load(f)
     frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))  # Total frames
     cls_list = [0 for i in range(frame_count)]
-    default_num_ges_to_cls = list(range(1, 9)) * 8  # [1,2,...,8,1,2,...]
-    for num_ges, seg in enumerate(tqdm(label_json['cutSegments'])):
-        # seg: {'start': 1.0113, 'end': 3.4433}
-        cls = default_num_ges_to_cls[num_ges]
+    for i, seg in enumerate(tqdm(label_json['cutSegments'])):
+        # seg: {'start': 1.0113, 'end': 3.4433, 'name': '1'}
+        cls = seg['name']
+        cls = int(cls)
+        assert cls >= 1 and cls <= 8
         cap.set(cv2.CAP_PROP_POS_MSEC, seg['start'] * 1000)
         s_frame = cap.get(cv2.CAP_PROP_POS_FRAMES)
         cap.set(cv2.CAP_PROP_POS_MSEC, seg['end'] * 1000)

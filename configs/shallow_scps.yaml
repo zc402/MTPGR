@@ -1,0 +1,5 @@
+MODEL:
+  MTPGR_CKPT: 'shallow_scps.ckpt'
+  STRATEGY: "SCPS"
+  GCN_DEPTH: 4
+OUTPUT: 'shallow_scps'
