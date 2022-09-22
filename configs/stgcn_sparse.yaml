@@ -1,5 +1,5 @@
 MODEL:
-  NAME: 'stgcn'
+  NAME: 'stgcn_sparse'
   STRATEGY: "SCPS"
   USE_CAMERA_POSE: False
   USE_ROTATIONS: False

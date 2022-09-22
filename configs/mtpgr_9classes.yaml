@@ -1,5 +1,5 @@
 MODEL:
-  NAME: 'mtpgr'
+  NAME: 'mtpgr_9classes'
   STRATEGY: "RHPS"
   USE_CAMERA_POSE: True
   USE_ROTATIONS: True

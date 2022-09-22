@@ -76,6 +76,7 @@ class Tester():
 
     @classmethod
     def from_config(cls, cfg):
+        log.info(f"--- Testing: {cfg.MODEL.NAME} ---")
         predictor = Predictor.from_config(cfg, cls._test_set_dataloader(cfg))
         instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.MODEL.NAME)
         return instance
