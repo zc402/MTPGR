@@ -13,10 +13,11 @@ from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
 from mtpgr.utils.log import log
 # joint xy coords -> gcn -> fcn
 class Trainer:
-    def __init__(self, predictor, num_classes):
+    def __init__(self, predictor, num_classes, epochs):
         self.predictor = predictor
         self.predictor.post_step = self.post_step
         self.num_classes = num_classes
+        self.epochs = epochs
 
         self.model = predictor.model
         self.loss = CrossEntropyLoss()  # The input is expected to contain raw, unnormalized scores for each class.
@@ -45,7 +46,7 @@ class Trainer:
 
     def train(self):
         log.info("Training...")
-        for epoch in tqdm(range(200)):
+        for epoch in tqdm(range(self.epochs)):
             self.predictor.run_epoch()
             if epoch % 50 == 0:
                 self.predictor.save_ckpt()
@@ -78,7 +79,7 @@ class Trainer:
     @classmethod
     def from_config(cls, cfg):
         predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
-        instance = Trainer(predictor, cfg.DATASET.NUM_CLASSES)
+        instance = Trainer(predictor, cfg.DATASET.NUM_CLASSES, epochs=cfg.DATASET.MAX_EPOCHS)
         return instance
 
     # def _logger_setup(self):

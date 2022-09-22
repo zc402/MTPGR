@@ -33,3 +33,27 @@ class SpatialMean(nn.Module):
 
         # x = x.view(N, T, C)
         return x
+
+class SparseConnect(nn.Module):
+    """one weight per V x label
+    Idea from "focus on the hands"
+    """
+    def __init__(self, in_channels, out_channels):
+        super().__init__()
+        self.out_channels = out_channels
+
+        self.fcn = nn.Sequential(
+            nn.Dropout(p=0.5, inplace=True),
+            nn.Linear(in_channels, out_channels),
+        )
+
+    def forward(self, x):
+        # x shape: N,C,T,V. T: Temporal features; V: Spatial features
+        N, C, T, V = x.size()
+
+        x = x.permute(0, 2, 3, 1)  # N T V C
+        x = x.reshape([N*T*V, C])  # N*T, C
+        x = self.fcn(x)
+        x = x.view(N*T, V, self.out_channels)
+        x = x.sum(1)  # N*T, C
+        return x

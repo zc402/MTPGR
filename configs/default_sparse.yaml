@@ -1,0 +1,4 @@
+MODEL:
+  MTPGR_CKPT: 'default_sparse.ckpt'
+  FUSE: 'sparse'
+OUTPUT: 'default_sparse'

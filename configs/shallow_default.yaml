@@ -1,0 +1,4 @@
+MODEL:
+  MTPGR_CKPT: 'shallow_default.ckpt'
+  GCN_DEPTH: 4
+OUTPUT: 'shallow_default'
