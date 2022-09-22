@@ -77,7 +77,7 @@ class Tester():
     @classmethod
     def from_config(cls, cfg):
         predictor = Predictor.from_config(cfg, cls._test_set_dataloader(cfg))
-        instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.OUTPUT)
+        instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.MODEL.NAME)
         return instance
 
     def _jaccard(self, result_list, num_classes):

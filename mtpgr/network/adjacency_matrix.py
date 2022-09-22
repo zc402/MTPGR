@@ -7,7 +7,7 @@ from mtpgr.utils.log import log
 class AdjacencyMatrix:
     # Adj matrix according to height layering partitioning strategy
 
-    def __init__(self, part_names, heights, edge, strategy="HLPS"):
+    def __init__(self, part_names, heights, edge, strategy):
         """
 
         :param edge: spatially connected parts. 2d array of shape (num_edge, 2)
@@ -120,8 +120,8 @@ class AdjacencyMatrix:
         return A
 
     def get_adjacency(self):
-        if self.strategy == "HLPS":
-            log.debug("Using HLPS")
+        if self.strategy == "RHPS":
+            log.debug("Using RHPS")
             return self.get_height_layering_adjacency()
         elif self.strategy == "SCPS":
             log.debug("Using SCPS")

@@ -71,6 +71,6 @@ class Predictor:
     def from_config(cls, cfg, data_loader):
         model = MTPGR.from_config(cfg)
         device = torch.device(cfg.MODEL.DEVICE)
-        ckpt = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.MTPGR_CKPT
+        ckpt = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.NAME
         instance = Predictor(data_loader, model, ckpt, device, num_classes=cfg.DATASET.NUM_CLASSES)
         return instance

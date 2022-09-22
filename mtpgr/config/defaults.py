@@ -32,20 +32,21 @@ _C.GENDATA.VIBE_DIR = 'vibe'  # '.npy' vibe parameters of **TRACKED** frames.
 
 _C.MODEL = CN()  # Network configs and save paths
 
+_C.MODEL.NAME = "model_name"  # The checkpoint and output folder will use this name
 _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
-_C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
+# _C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
 _C.MODEL.ATTENTION = True # Use attention in GCN
-_C.MODEL.USE_CAMERA_POSE = True  # Add camera pose to joint features
-_C.MODEL.USE_ROTATIONS = True
-_C.MODEL.GCN_DEPTH = 10  # 4 or 10. The depth of the GCN network
+_C.MODEL.USE_CAMERA_POSE = True  # Root rotation 
+_C.MODEL.USE_ROTATIONS = True  # All joint rotations (Include root rotation)
+_C.MODEL.GCN_DEPTH = 4  # 4 or 10. The depth of the GCN network
 _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
 # _C.MODEL.NO_SPATIAL_EDGES = False  # No spatial edges on the graph, for ablation study.
-_C.MODEL.STRATEGY = "HLPS"  # "HLPS" / "SCPS"
+_C.MODEL.STRATEGY = "RHPS"  # "RHPS" / "SCPS"
 _C.MODEL.FUSE = "mean"  # mean / sparse
 
-_C.OUTPUT = 'default_output'  # Test result output
+# _C.OUTPUT = 'default_output'  # Test result output
 
 # _C.TRAIN.CLIP_LEN = 300
 # _C.TRAIN.BATCH_SIZE = 10

@@ -1,7 +1,7 @@
 MODEL:
-  NAME: 'stgcn'
-  STRATEGY: "SCPS"
+  NAME: 'mtpgr'
+  STRATEGY: "RHPS"
   USE_CAMERA_POSE: False
   USE_ROTATIONS: False
   GCN_DEPTH: 4
-  FUSE: 'mean'
+  FUSE: 'sparse'

@@ -79,7 +79,7 @@ class Trainer:
     @classmethod
     def from_config(cls, cfg):
         predictor = Predictor.from_config(cfg, cls._data_loader(cfg))
-        instance = Trainer(predictor, cfg.DATASET.NUM_CLASSES, epochs=cfg.DATASET.MAX_EPOCHS)
+        instance = Trainer(predictor, cfg.DATASET.NUM_CLASSES, epochs=cfg.DATASET.EPOCHS)
         return instance
 
     # def _logger_setup(self):

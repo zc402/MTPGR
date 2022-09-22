@@ -160,8 +160,8 @@ if __name__ == "__main__":
     cfg = get_cfg_defaults()
     cfg.merge_from_file('configs/no_camera.yaml')
 
-    result_path = Path('output', cfg.OUTPUT, 'result.pkl')
-    anime_save_folder = Path('output', cfg.OUTPUT, 'anime')
+    result_path = Path('output', cfg.MODEL.NAME, 'result.pkl')
+    anime_save_folder = Path('output', cfg.MODEL.NAME, 'anime')
     anime_save_folder.mkdir(exist_ok=True)
 
     with result_path.open('rb') as f:

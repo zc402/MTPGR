@@ -5,7 +5,7 @@ import cv2
 cfg = get_cfg_defaults()
 cfg.merge_from_file('configs/no_camera.yaml')
 
-anime_save_folder = Path('output', cfg.OUTPUT, 'anime')
+anime_save_folder = Path('output', cfg.MODEL.NAME, 'anime')
 images = anime_save_folder.glob("*.jpg")
 images = sorted(images, key=lambda img: int(img.stem))
 

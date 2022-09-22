@@ -1,7 +1,6 @@
 MODEL:
-  NAME: 'stgcn'
+  MTPGR_CKPT: 'stgcn.ckpt'
   STRATEGY: "SCPS"
   USE_CAMERA_POSE: False
   USE_ROTATIONS: False
-  GCN_DEPTH: 4
-  FUSE: 'mean'
+OUTPUT: 'stgcn'

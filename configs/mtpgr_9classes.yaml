@@ -1,0 +1,9 @@
+MODEL:
+  NAME: 'mtpgr'
+  STRATEGY: "RHPS"
+  USE_CAMERA_POSE: True
+  USE_ROTATIONS: True
+  GCN_DEPTH: 4
+  FUSE: 'sparse'
+DATASET:
+  NUM_CLASSES: 9
