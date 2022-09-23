@@ -1,6 +1,6 @@
 MODEL:
-  NAME: 'stgcn_sparse'
+  NAME: 'shal_stgcn'
   STRATEGY: "SCPS"
   USE_CAMERA_POSE: False
   USE_ROTATIONS: False
-  FUSE: 'sparse'
+  GCN_DEPTH: 4

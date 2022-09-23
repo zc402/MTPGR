@@ -1,5 +1,6 @@
 
 import argparse
+import logging
 import pickle
 from pathlib import Path
 from torch.utils.data import DataLoader
@@ -110,4 +111,5 @@ if __name__ == '__main__':
 
     val_cfg = get_cfg_defaults()
     val_cfg.merge_from_file(config_path)
+    log.setLevel(logging.INFO)
     Tester.from_config(val_cfg).val()

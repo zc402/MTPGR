@@ -1,7 +1,8 @@
 MODEL:
-  NAME: 'mtpgr_9classes'
+  NAME: 'shal_mtpgr_9classes'
   STRATEGY: "RHPS"
   USE_CAMERA_POSE: True
   USE_ROTATIONS: True
+  GCN_DEPTH: 4
 DATASET:
   NUM_CLASSES: 9

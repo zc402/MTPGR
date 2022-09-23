@@ -3,5 +3,3 @@ MODEL:
   STRATEGY: "SCPS"
   USE_CAMERA_POSE: False
   USE_ROTATIONS: False
-  GCN_DEPTH: 4
-  FUSE: 'mean'

@@ -1,0 +1,6 @@
+MODEL:
+  NAME: 'shal_mtpgr_wo_rot_cam'
+  STRATEGY: "RHPS"
+  USE_CAMERA_POSE: False
+  USE_ROTATIONS: False
+  GCN_DEPTH: 4
