@@ -1,4 +1,5 @@
 import datetime
+import json
 from pathlib import Path
 from mtpgr.config import get_cfg_defaults
 import cv2
@@ -29,15 +30,38 @@ def video_duration():
     print(f'Min:{min(result, key=lambda x:x[1])}')
 
 def clip_duration():
-    category_names = ['Strongly disagree', 'Disagree',
-                  'Neither agree nor disagree', 'Agree', 'Strongly agree']
+
+    assert Path(cfg.DATA_ROOT).is_dir(), 'MTPGR/data not found. Expecting "./MTPGR" as working directory'
+    combine_folder: Path = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.GENDATA.COMBINE_LABEL_DIR
+    video_folder = Path(cfg.DATA_ROOT) / cfg.DATASET.PGDS2_DIR / cfg.DATASET.VIDEO_DIR
+    video_paths = video_folder.glob('*.m4v')
+    video_paths = list(video_paths)
+
+    collect = []
+
+    for video in video_paths:
+        video_name = video.stem
+        combine_file = combine_folder / (video_name + ".json")
+
+        with open(combine_file, 'r') as f:
+            combine_list = json.load(f)
+        collect.extend(combine_list)
+
+    category_names = ['Self', 'Left',
+                  'Opposite', 'Right']
+
+    fc = {}  # Frame count
+    for i in range(1, 33):
+        fc[i] = len([a for a in collect if a == i]) / 25
     results = {
-        'Question 1': [10, 15, 17, 32, 26],
-        'Question 2': [26, 22, 29, 10, 13],
-        'Question 3': [35, 37, 7, 2, 19],
-        'Question 4': [32, 11, 9, 15, 33],
-        'Question 5': [21, 29, 5, 5, 40],
-        'Question 6': [8, 19, 5, 30, 8]
+        'Stop':                 [fc[1], fc[9], fc[17], fc[25]],
+        'Forward':              [fc[2], fc[10], fc[18], fc[26]],
+        'Left turn':            [fc[3], fc[11], fc[19], fc[27]],
+        'LT waiting':           [fc[4], fc[12], fc[20], fc[28]],
+        'Right turn':           [fc[5], fc[13], fc[21], fc[29]],
+        'Lane changing':        [fc[6], fc[14], fc[22], fc[30]],
+        'Slow down':            [fc[7], fc[15], fc[23], fc[31]],
+        'Pull over':            [fc[8], fc[16], fc[24], fc[32]],
     }
 
 
@@ -55,7 +79,7 @@ def clip_duration():
         labels = list(results.keys())
         data = np.array(list(results.values()))
         data_cum = data.cumsum(axis=1)
-        category_colors = plt.colormaps['RdYlGn'](
+        category_colors = plt.colormaps['viridis'](
             np.linspace(0.15, 0.85, data.shape[1]))
 
         fig, ax = plt.subplots(figsize=(9.2, 5))
@@ -78,6 +102,6 @@ def clip_duration():
         return fig, ax
 
     survey(results, category_names)
-    plt.show()
+    plt.savefig('frame_cnt.pdf')
 
 clip_duration()
