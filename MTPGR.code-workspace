@@ -42,7 +42,7 @@
 				"program": "./mtpgr/test.py",
 				"args": 
 				[
-					"-c","no_camera.yaml"
+					"-c","stgcn.yaml"
 				],
 				"console": "integratedTerminal",
 				"justMyCode": true,

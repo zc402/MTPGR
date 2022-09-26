@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from mtpgr.kinematic.parts import Parts
+from mtpgr.kinematic.parts import J3D_IN_USE
 # from network.kinematic import edges, heights, p2pat
 from mtpgr.utils.log import log
 
@@ -34,7 +35,7 @@ class AdjacencyMatrix:
         AD = np.dot(A, Dn)
         return AD
 
-    def get_height_layering_adjacency(self):
+    def get_relative_height_adj(self):
         """返回以关键点高度进行配置的邻接矩阵"""
         num_node = self.num_node
         adjacency = np.zeros((num_node, num_node))  # Adjacency matrix, 
@@ -58,9 +59,9 @@ class AdjacencyMatrix:
                     if hj - hr > 0:  # 邻接点在root之上
                         A[2, root, j] = 1
                     elif hj - hr < 0:
-                        A[0, root, j] = 1
-                    else:  # 高度一致。例如左右胯部。
                         A[1, root, j] = 1
+                    else:  # 高度一致。例如左右胯部。
+                        A[0, root, j] = 1
         assert 0 <= A.any() <= 1
         assert 0 <= A.sum(axis=0).any() <= 1
 
@@ -83,13 +84,15 @@ class AdjacencyMatrix:
         return hop_dis
     
     def get_spatial_conf_adjacency(self):
-        max_hop = 1
+        max_hop = 6
         dilation = 1
-        center = 6  # 'OP MidHip'
+        # center = 6  # 'OP MidHip'
+        center = 7  # Pelvis (MPII), Temp for drawing the adj matrix
         
         hop_dis = self._get_hop_distance(self.num_node, self.edge, max_hop)
 
-        valid_hop = range(0, max_hop + 1, dilation)
+        # valid_hop = range(0, max_hop + 1, dilation)
+        valid_hop = range(2)
         adjacency = np.zeros((self.num_node, self.num_node))
         for hop in valid_hop:
             adjacency[hop_dis == hop] = 1
@@ -113,7 +116,7 @@ class AdjacencyMatrix:
             if hop == 0:
                 A.append(a_root)
             else:
-                A.append(a_root + a_close)
+                A.append(a_close)  # A.append(a_root + a_close)
                 A.append(a_further)
         A = np.stack(A)
         A = torch.tensor(A, dtype=torch.float32, requires_grad=False)
@@ -122,7 +125,7 @@ class AdjacencyMatrix:
     def get_adjacency(self):
         if self.strategy == "RHPS":
             log.debug("Using RHPS")
-            return self.get_height_layering_adjacency()
+            return self.get_relative_height_adj()
         elif self.strategy == "SCPS":
             log.debug("Using SCPS")
             return self.get_spatial_conf_adjacency()

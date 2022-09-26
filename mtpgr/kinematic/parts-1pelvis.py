@@ -2,8 +2,6 @@ from typing import List, Tuple
 from vibe.models.smpl import JOINT_NAMES
 from mtpgr.utils.log import log
 
-# Connection: pelvis, spine, spine
-
 # This is the official SMPL joints. The pose (theta) parameters of SMPL model follows this order.
 # VIBE joints extends the list, removes some parts (e.g. Head) and breaks the order. Their corresponding relations are in JOINT_MAP
 SMPL_skeleton = {
@@ -42,7 +40,7 @@ VIBE_J3D_NAME_TO_IDX = {name: idx for idx, name in enumerate(VIBE_3D_joints)}  #
 SMPL_POSE_NAME_TO_IDX = {name: idx for idx, name in SMPL_skeleton.items()}
 
 # Parts that are used by MTPGR model.
-J3D_IN_USE = ['OP RAnkle', 'OP LAnkle', 'OP RKnee', 'OP LKnee', 'OP RHip', 'OP LHip', 'OP MidHip', 'Pelvis (MPII)', 'Spine (H36M)', 'Thorax (MPII)',
+J3D_IN_USE = ['OP RAnkle', 'OP LAnkle', 'OP RKnee', 'OP LKnee', 'OP RHip', 'OP LHip', 'OP MidHip', 
 'OP RWrist', 'OP LWrist', 'OP RElbow', 'OP LElbow', 'OP RShoulder', 'OP LShoulder', 'OP Neck', 'OP Nose']
 
 J3D_HEIGHTS = {
@@ -52,15 +50,15 @@ J3D_HEIGHTS = {
     'OP LKnee': 1,
     'OP RHip': 2,
     'OP LHip': 2,
-    'OP MidHip': 3, 'Pelvis (MPII)': 4, 'Spine (H36M)': 5, 'Thorax (MPII)': 6,
-    'OP RWrist': 7,
-    'OP LWrist': 7,
-    'OP RElbow': 8,
-    'OP LElbow': 8,
-    'OP RShoulder': 9,
-    'OP LShoulder': 9,
-    'OP Neck': 10,
-    'OP Nose': 11,
+    'OP MidHip': 3,
+    'OP RWrist': 4,
+    'OP LWrist': 4,
+    'OP RElbow': 5,
+    'OP LElbow': 5,
+    'OP RShoulder': 6,
+    'OP LShoulder': 6,
+    'OP Neck': 7,
+    'OP Nose': 8,
 }
 
 J3D_EDGES = [
@@ -74,11 +72,7 @@ J3D_EDGES = [
         ('OP LElbow', 'OP LWrist'),  # 左小臂
 
         ('OP Nose', 'OP Neck'),  # 头
-        ('OP Neck', 'Thorax (MPII)'),  # 躯干
-
-        ('Spine (H36M)', 'Thorax (MPII)'),
-        ('Pelvis (MPII)', 'Spine (H36M)'),
-        ('OP MidHip', 'Pelvis (MPII)'),  # 为了演示SCPS的缺点，加入一些模拟SMPL脊椎点的点
+        ('OP Neck', 'OP MidHip'),  # 躯干
 
         ('OP MidHip', 'OP RHip'),  # 右跨
         ('OP MidHip', 'OP LHip'),  # 左跨
@@ -185,10 +179,6 @@ class Parts:
             a,b = edge
             edge_indices.append((name2id[a], name2id[b]))
         return edge_indices
-
-    def get_part_id(self, name) -> int:
-        name2id = {name: idx for idx, name in enumerate(self.part_names)}
-        return name2id[name]
     
     def get_parts(self) -> List[str]:
         # Return: list of part names

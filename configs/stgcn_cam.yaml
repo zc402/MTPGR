@@ -1,0 +1,5 @@
+MODEL:
+  NAME: 'stgcn'
+  STRATEGY: "SCPS"
+  USE_CAMERA_POSE: True
+  USE_ROTATIONS: False
