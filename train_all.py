@@ -13,6 +13,6 @@ for g in graphs:
             cfg.MODEL.GRAPH = g
             cfg.MODEL.STRATEGY = p
             cfg.DATASET.NUM_CLASSES = c
-            cfg.DATASET.EPOCHS = 1
+            cfg.DATASET.EPOCHS = 50
             log.debug(f'cfg - g:{g}, p:{p}, c:{c}')
             Trainer.from_config(cfg).train()
