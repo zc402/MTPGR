@@ -9,7 +9,7 @@ from mtpgr.network.adjacency_matrix import AdjacencyMatrix
 # ========== Read 3D joints data ==========
 
 cfg = get_cfg_defaults()
-config_path:Path = Path('configs', 'mtpgr_wo_rot.yaml')  # stgcn.yaml  stgcn_cam.yaml  mtpgr_wo_rot.yaml
+config_path:Path = Path('configs', 'stgcn.yaml')  # stgcn.yaml  stgcn_cam.yaml  mtpgr_wo_rot.yaml
 cfg.merge_from_file(config_path)
 
 adj_mat = AdjacencyMatrix.from_config(cfg)

@@ -64,6 +64,15 @@ def to_matplotlib_axes(kps):
 
 def draw_points(VIBE_j3d: np.ndarray):
 
+    enable_axis = False
+    enable_pose = False
+    enable_cam = False
+    enable_pose_internal = False
+    enable_cam_j3d = False
+    enable_pose_j3d = False
+    enable_heights = False
+    enable_j3d_number = True
+
     plt.figure(figsize=(20, 20))
     ax = plt.axes(projection ='3d')
 
@@ -74,6 +83,9 @@ def draw_points(VIBE_j3d: np.ndarray):
     ax.set_ylim(-1, 1)
     ax.set_zlim(-0.75, 1.25)
 
+    if not enable_axis:
+        plt.axis('off')
+
     # --------Keypoints--------
     j3d_points = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[name]] for name in J3D_IN_USE]
 
@@ -82,7 +94,13 @@ def draw_points(VIBE_j3d: np.ndarray):
     # pose_points = [(x, y+0.2, z) for x,y,z in pose_points]  # Prevent overlap
 
     ax.scatter3D(*zip(*j3d_points), color='tab:green', marker='o', s=80)
-    ax.scatter3D(*zip(*pose_points), color='tab:orange', marker='v', s=80)
+    if enable_j3d_number:
+        for n, coord3d in enumerate(j3d_points):
+            ax.text(*coord3d, str(n), color='black')
+
+
+    if enable_pose:
+        ax.scatter3D(*zip(*pose_points), color='tab:orange', marker='v', s=80)
 
     # ----------Edges-----------
     # J3D
@@ -93,37 +111,42 @@ def draw_points(VIBE_j3d: np.ndarray):
         ax.plot3D(*xyz, color='tab:olive')
 
     # Pose internal
-    pose_internal_edges = [(j3d_tl[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
-        for a, b in FAKE_POSE_INTERNAL_EDGES]
-    for edge in pose_internal_edges:
-        ax.plot3D(*zip(*edge), color='tab:pink')
+    if enable_pose_internal:
+        pose_internal_edges = [(j3d_tl[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
+            for a, b in FAKE_POSE_INTERNAL_EDGES]
+        for edge in pose_internal_edges:
+            ax.plot3D(*zip(*edge), color='tab:pink')
 
     # Pose-j3d
-    pose_j3d_edges = [(VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
-        for a, b in FAKE_POSE_J3D_EDGES]
-    for edge in pose_j3d_edges:
-        ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dashed')
+    if enable_pose_j3d:
+        pose_j3d_edges = [(VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]], j3d_tl[VIBE_J3D_NAME_TO_IDX[b]]) 
+            for a, b in FAKE_POSE_J3D_EDGES]
+        for edge in pose_j3d_edges:
+            ax.plot3D(*zip(*edge), color='tab:cyan', linestyle='dashed')
 
     # camera
-    camera = (0, -0.5, 1.1)
-    ax.scatter3D(*camera, color='tab:red', marker='*', s=100)
+    if enable_cam:
+        camera = (0, -0.5, 1.1)
+        ax.scatter3D(*camera, color='tab:red', marker='*', s=100)
 
-    camera_edges = [(camera, VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]]) for a in J3D_IN_USE]
-    for edge in camera_edges:
-        ax.plot3D(*zip(*edge), color='silver', linestyle='dotted')
+    if enable_cam_j3d:
+        camera_edges = [(camera, VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]]) for a in J3D_IN_USE]
+        for edge in camera_edges:
+            ax.plot3D(*zip(*edge), color='silver', linestyle='dotted')
 
     # Height surface
-    cmap = plt.get_cmap('Greys')
-    
-    representative_joints = ['OP LAnkle', 'OP LKnee', 'OP LHip', 'OP MidHip', 'OP LElbow', 'OP LShoulder', 'OP Neck', 'OP Nose']
-    color_range = np.linspace(0.8, 0.3, len(representative_joints))
-    colors = [cmap(n) for n in color_range]
-    repj_heights = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]][2] + 0.08 for a in representative_joints]
-    repj_heights[2] = repj_heights[2] - 0.05
-    for n, h in enumerate(repj_heights):
-        p = Rectangle((-0.3, -0.3), 0.6, 0.6, alpha=0.6, color=colors[n])
-        ax.add_patch(p)
-        art3d.pathpatch_2d_to_3d(p, z=h, zdir="z")
+    if enable_heights:
+        cmap = plt.get_cmap('Greys')
+        
+        representative_joints = ['OP LAnkle', 'OP LKnee', 'OP LHip', 'OP MidHip', 'OP LElbow', 'OP LShoulder', 'OP Neck', 'OP Nose']
+        color_range = np.linspace(0.8, 0.3, len(representative_joints))
+        colors = [cmap(n) for n in color_range]
+        repj_heights = [VIBE_j3d[VIBE_J3D_NAME_TO_IDX[a]][2] + 0.08 for a in representative_joints]
+        repj_heights[2] = repj_heights[2] - 0.05
+        for n, h in enumerate(repj_heights):
+            p = Rectangle((-0.3, -0.3), 0.6, 0.6, alpha=0.6, color=colors[n])
+            ax.add_patch(p)
+            art3d.pathpatch_2d_to_3d(p, z=h, zdir="z")
 
     plt.show()
 
@@ -134,8 +157,8 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size':16})
 
     cfg = get_cfg_defaults()
-    cfg.merge_from_file('configs/default_model.yaml')
-    result_path = Path('output', cfg.OUTPUT, 'result.pkl')
+    cfg.merge_from_file('configs/mtpgr_wo_rot.yaml')
+    result_path = Path('output', cfg.MODEL.NAME, 'result.pkl')
 
     with result_path.open('rb') as f:
         result = pickle.load(f)
