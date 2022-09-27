@@ -1,7 +1,7 @@
 from pathlib import Path
 import torch
 from torch import nn
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults, get_auto_name
 from mtpgr.network import MTPGR
 from mtpgr.utils.log import log
 
@@ -71,6 +71,11 @@ class Predictor:
     def from_config(cls, cfg, data_loader):
         model = MTPGR.from_config(cfg)
         device = torch.device(cfg.MODEL.DEVICE)
-        ckpt = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / cfg.MODEL.NAME
+        if cfg.MODEL.NAME == 'auto':
+            model_name = get_auto_name(cfg)
+        else:
+            model_name = cfg.MODEL.NAME
+        ckpt: Path = Path(cfg.DATA_ROOT) / cfg.MODEL.CKPT_DIR / model_name
+        log.debug(f'Checkpoint path: {ckpt.absolute()}')
         instance = Predictor(data_loader, model, ckpt, device, num_classes=cfg.DATASET.NUM_CLASSES)
         return instance

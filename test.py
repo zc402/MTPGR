@@ -8,10 +8,11 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+from mtpgr.config.defaults import get_auto_name
 
 from mtpgr.utils.log import log
 from mtpgr.dataset.pgv2_dataset import PGv2TestDataset
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
 from mtpgr.analysis.confusion_matrix import compute_cm
 
@@ -77,9 +78,13 @@ class Tester():
 
     @classmethod
     def from_config(cls, cfg):
-        log.info(f"--- Testing: {cfg.MODEL.NAME} ---")
+        if cfg.MODEL.NAME == 'auto':
+            model_name = get_auto_name(cfg)
+        else:
+            model_name = cfg.MODEL.NAME
+        log.info(f"--- Testing: {model_name} ---")
         predictor = Predictor.from_config(cfg, cls._test_set_dataloader(cfg))
-        instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, cfg.MODEL.NAME)
+        instance = Tester(predictor, cfg.DATASET.NUM_CLASSES, model_name)
         return instance
 
     def _jaccard(self, result_list, num_classes):

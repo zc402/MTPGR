@@ -8,7 +8,7 @@ from tqdm import tqdm
 from mtpgr.network.predictor import Predictor
 from torch import optim
 from mtpgr.dataset.pgv2_dataset import PGv2TrainDataset
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.analysis.chalearn_jaccard import ChaLearnJaccard
 from mtpgr.utils.log import log
 # joint xy coords -> gcn -> fcn

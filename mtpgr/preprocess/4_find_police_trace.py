@@ -5,7 +5,7 @@ The police is not always tracked correctly. Wrong tracks needs to be fixed manua
 import pickle
 from pathlib import Path
 import numpy as np
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.utils.log import log
 
 def load_tracking_results(track_file: Path) -> list:

@@ -2,7 +2,7 @@ import pickle
 from pathlib import Path
 from vibe.rt import RtVibe
 import cv2
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.utils.log import log
 import torch
 import numpy as np

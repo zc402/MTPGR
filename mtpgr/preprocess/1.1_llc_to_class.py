@@ -4,7 +4,7 @@ import json
 import json5
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 
 
 def llc_to_class(video: Path, label: Path, save_path: Path, show: bool = True):

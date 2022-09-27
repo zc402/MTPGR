@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 from pathlib import Path
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.network.adjacency_matrix import AdjacencyMatrix
 
 # ========== Read 3D joints data ==========

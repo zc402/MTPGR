@@ -138,55 +138,45 @@ CUSTOM_HEIGHT = {'Pelvis': 100}  # Root rotation, connects to joints.
 CUSTOM_EDGES = [(joint, 'Pelvis') for joint in J3D_HEIGHTS.keys()]  # Connect each joints(J3D) to pelvis(theta)
 
 class Parts:
-    def __init__(self, graph='CPR'):
-        # self.use_cam_pose = use_cam_pose
-        # self.use_rotations = use_rotations
-        self.graph = graph
+    def __init__(self, use_cam_pose: bool=False, use_rotations: bool=False):
+        self.use_cam_pose = use_cam_pose
+        self.use_rotations = use_rotations
         self.part_names: List[str] = []  # All part names. Shape:(V,)
         self.heights: List[int] = []  # Heights. Same order with part_names. Shape:(V,)
         self.edges: List[Tuple(str, str)] = []  # Edges. Shape:(E, 2)
 
-        if graph == 'P':
+        if use_rotations:
+            log.debug("use rotations (and camera pose)")
             self.part_names.extend(J3D_IN_USE)
-            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.edges.extend(J3D_EDGES)
-        
-        elif graph == 'R':
+            self.part_names.extend(CUSTOM_IN_USE)
             self.part_names.extend(POSE_IN_USE)
-            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
-            self.edges.extend(POSE_INTERNAL_EDGES)
 
-        elif graph == 'PR':
-            self.part_names.extend(J3D_IN_USE)
-            self.part_names.extend(POSE_IN_USE)
             self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
+            self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
             self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
+
             self.edges.extend(J3D_EDGES)
+            self.edges.extend(CUSTOM_EDGES)
             self.edges.extend(POSE_J3D_EDGES)
             self.edges.extend(POSE_INTERNAL_EDGES)
 
-        elif graph == 'CP':
+        elif use_cam_pose:
+            log.debug("use camera pose")
             self.part_names.extend(J3D_IN_USE)
             self.part_names.extend(CUSTOM_IN_USE)
-            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
-            self.edges.extend(J3D_EDGES)
-            self.edges.extend(CUSTOM_EDGES)
-
-        elif graph == 'CPR':
-            self.part_names.extend(J3D_IN_USE)  # J3D, if available, always at the 1st position.
-            self.part_names.extend(POSE_IN_USE)
-            self.part_names.extend(CUSTOM_IN_USE)
-            
 
             self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
             self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
 
             self.edges.extend(J3D_EDGES)
-            self.edges.extend(POSE_INTERNAL_EDGES)
-            self.edges.extend(POSE_J3D_EDGES)
             self.edges.extend(CUSTOM_EDGES)
+        else:
+            log.debug("no camera pose")
+            self.part_names.extend(J3D_IN_USE)
+
+            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
+
+            self.edges.extend(J3D_EDGES)
 
     def get_edge_indices(self) -> List[Tuple[int, int]]:
         edge_indices = []
@@ -212,49 +202,29 @@ class Parts:
         features = []
         vibe_j3D_indices = [VIBE_J3D_NAME_TO_IDX[name] for name in J3D_IN_USE]
         j3D_values = VIBE_j3D[vibe_j3D_indices]
+        features.extend(j3D_values)
 
-        custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        custom_values = SMPL_pose[custom_smpl_pose_indices]
-
-        pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
-        pose_values = SMPL_pose[pose_in_use_indices]
-
-        if self.graph == 'P':
-            features.extend(j3D_values)
-        elif self.graph == 'R':
-            features.extend(pose_values)
-        elif self.graph == 'PR':
-            features.extend(j3D_values)
-            features.extend(pose_values)
-        elif self.graph == 'CP':
-            features.extend(j3D_values)
-            features.extend(custom_values)
-        elif self.graph == 'CPR':
-            features.extend(j3D_values)  # Same order with part_names
-            features.extend(pose_values)
+        if self.use_rotations:
+            # Read pelvis root rotation
+            custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
+            custom_values = SMPL_pose[custom_smpl_pose_indices]
             features.extend(custom_values)
 
-        # if self.use_rotations:
-        #     # Read pelvis root rotation
-        #     custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        #     custom_values = SMPL_pose[custom_smpl_pose_indices]
-        #     features.extend(custom_values)
+            # Read part rotations (no root)
+            pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
+            pose_values = SMPL_pose[pose_in_use_indices]
+            features.extend(pose_values)
 
-        #     # Read part rotations (no root)
-        #     pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
-        #     pose_values = SMPL_pose[pose_in_use_indices]
-        #     features.extend(pose_values)
-
-        # elif self.use_cam_pose:
-        #     custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        #     custom_values = SMPL_pose[custom_smpl_pose_indices]
-        #     features.extend(custom_values)
-        # else:
-        #     pass  # skeleton only
+        elif self.use_cam_pose:
+            custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
+            custom_values = SMPL_pose[custom_smpl_pose_indices]
+            features.extend(custom_values)
+        else:
+            pass  # skeleton only
         return features
     
     @classmethod
     def from_config(cls, cfg):
-        return Parts(graph=cfg.MODEL.GRAPH)
+        return Parts(use_cam_pose=cfg.MODEL.USE_CAMERA_POSE, use_rotations=cfg.MODEL.USE_ROTATIONS)
 
 

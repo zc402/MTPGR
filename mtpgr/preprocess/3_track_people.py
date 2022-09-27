@@ -6,7 +6,7 @@ from pathlib import Path
 import torch
 import numpy as np
 from torch.utils.data import IterableDataset, DataLoader
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.utils.log import log
 from multi_person_tracker import Sort
 from torchvision.transforms.functional import to_tensor

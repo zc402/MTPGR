@@ -1,7 +1,7 @@
 import datetime
 import json
 from pathlib import Path
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np

@@ -61,15 +61,14 @@ def to_matplotlib_axes(kps):
     return new_kps
 
 
-
 def draw_points(VIBE_j3d: np.ndarray):
 
     enable_axis = False
-    enable_pose = False
-    enable_cam = False
-    enable_pose_internal = False
-    enable_cam_j3d = False
-    enable_pose_j3d = False
+    enable_pose = True
+    enable_cam = True
+    enable_pose_internal = True
+    enable_cam_j3d = True
+    enable_pose_j3d = True
     enable_heights = False
     enable_j3d_number = True
 

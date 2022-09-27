@@ -18,7 +18,7 @@ _C.DATASET.TRAIN_VIDEOS = ['4K9A0217', '4K9A0218', '4K9A0219', '4K9A0220','4K9A0
 _C.DATASET.TEST_VIDEOS = ['4K9A0221', '4K9A0222', '4K9A0223', '4K9A0224', '5571', '5573']
 
 _C.DATASET.NUM_CLASSES = 33  # options: 9 or 33. # 9: 8 gestures + 1 no gesture; # 33: 8 gestures, 4 directions, + 1 no gesture
-_C.DATASET.EPOCHS = 150  # Max epochs for CTPGesture v2
+_C.DATASET.EPOCHS = 50  # Max epochs for CTPGesture v2
 
 _C.GENDATA = CN()  # Preprocessed generated data
 
@@ -32,13 +32,14 @@ _C.GENDATA.VIBE_DIR = 'vibe'  # '.npy' vibe parameters of **TRACKED** frames.
 
 _C.MODEL = CN()  # Network configs and save paths
 
-_C.MODEL.NAME = "model_name"  # The checkpoint and output folder will use this name
+_C.MODEL.NAME = "auto"  # The checkpoint and output folder name. auto = GRAPH_STRATEGY_FUSE_NUMCLASSES
 _C.MODEL.CKPT_DIR = 'checkpoints'  # Checkpoint folder
 # _C.MODEL.MTPGR_CKPT = 'mtpgr_cam.ckpt'  # MTPGR ckpt file
 _C.MODEL.DEVICE = 'cuda'  # 'cpu'  # 'cuda'
 _C.MODEL.ATTENTION = True # Use attention in GCN
-_C.MODEL.USE_CAMERA_POSE = True  # Root rotation 
-_C.MODEL.USE_ROTATIONS = True  # All joint rotations (Include root rotation)
+# _C.MODEL.USE_CAMERA_POSE = True  # Root rotation 
+# _C.MODEL.USE_ROTATIONS = True  # All joint rotations (Include root rotation)
+_C.MODEL.GRAPH = 'CPR'  # C: camera, P: position, R: rotation. Allow: 'P', 'R', 'PR', 'CP', 'CPR'
 _C.MODEL.GCN_DEPTH = 10  # 4 or 10. The depth of the GCN network
 _C.MODEL.CLIP_LEN = 300  # Length of video sample for graph network
 _C.MODEL.BATCH_SIZE = 10  # Num of clips in one batch
@@ -61,3 +62,7 @@ _C.MODEL.FUSE = "mean"  # mean / sparse
 
 def get_cfg_defaults():
     return _C.clone()
+
+def get_auto_name(cfg):
+    name = f"{cfg.MODEL.GRAPH}_{cfg.MODEL.STRATEGY}_{cfg.MODEL.FUSE}_{cfg.DATASET.NUM_CLASSES}"
+    return name

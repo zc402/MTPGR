@@ -1,6 +1,6 @@
 import cv2
 from pathlib import Path
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 
 
 def video2images(video: Path, img_folder: Path):

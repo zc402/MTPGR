@@ -6,7 +6,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from mtpgr.config import get_cfg_defaults
+from mtpgr.config.defaults import get_cfg_defaults
 from mtpgr.utils.log import log
 
 def combine(ges_label: Path, ori_label: Path, output: Path, show=True):
