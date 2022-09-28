@@ -1,9 +1,11 @@
 from mtpgr.config.defaults import get_cfg_defaults
+from test import Tester
 from train import Trainer
 from mtpgr.utils.log import log
 
 graphs = ['P', 'R', 'PR', 'CP', 'CPR']
-partitions = ['SCPS', 'RHPS']
+# partitions = ['SCPS', 'RHPS']
+partitions = ['UNI']
 classes = [33, 9]
 
 for g in graphs:

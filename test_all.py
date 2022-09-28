@@ -3,7 +3,8 @@ from test import Tester
 from mtpgr.utils.log import log
 
 graphs = ['P', 'R', 'PR', 'CP', 'CPR']
-partitions = ['SCPS', 'RHPS']
+# partitions = ['SCPS', 'RHPS']
+partitions = ['UNI']
 classes = [33, 9]
 
 result = {}

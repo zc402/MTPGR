@@ -122,13 +122,29 @@ class AdjacencyMatrix:
         A = torch.tensor(A, dtype=torch.float32, requires_grad=False)
         return A
 
+    def get_uni_adj(self):
+        adjacency = np.zeros((self.num_node, self.num_node))
+
+        max_hop = 6
+        valid_hop = range(2)
+        hop_dis = self._get_hop_distance(self.num_node, self.edge, max_hop)
+
+        for hop in valid_hop:
+            adjacency[hop_dis == hop] = 1
+        A = self.normalize_digraph(adjacency)[np.newaxis]
+        A = torch.tensor(A, dtype=torch.float32, requires_grad=False)
+        return A
+
     def get_adjacency(self):
         if self.strategy == "RHPS":
-            log.debug("Using RHPS")
+            log.debug("Partitioning: RHPS")
             return self.get_relative_height_adj()
         elif self.strategy == "SCPS":
-            log.debug("Using SCPS")
+            log.debug("Partitioning: SCPS")
             return self.get_spatial_conf_adjacency()
+        elif self.strategy == "UNI":
+            log.debug("Partitioning: UNI")
+            return self.get_uni_adj()
         else:
             raise NotImplementedError()
 
