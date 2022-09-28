@@ -17,7 +17,7 @@ for g in graphs:
             cfg.DATASET.EPOCHS = 50
             log.debug(f'cfg - g:{g}, p:{p}, c:{c}')
             j_score = Tester.from_config(cfg).test()
-            result['cfg - g:{g}, p:{p}, c:{c}'] = j_score
+            result[f'cfg - g:{g}, p:{p}, c:{c}'] = j_score
 
 for item in result.items():
     print(item)
