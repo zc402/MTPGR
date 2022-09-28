@@ -46,7 +46,7 @@ class Tester():
         self.result_list = []  # Test results. Shape: (seqs, {"pred", "label"})
 
     @torch.no_grad()
-    def val(self):
+    def test(self):
         self.predictor.run_epoch()
 
         result_save_path = self.save_folder / "result.pkl"
@@ -54,8 +54,9 @@ class Tester():
         with result_save_path.open('wb') as f:
             pickle.dump(self.result_list, f)
         
-        self._jaccard(self.result_list, self.num_classes)
+        j_score = self._jaccard(self.result_list, self.num_classes)
         self._confusion_matrix(self.result_list)
+        return j_score
 
     def post_step(self, pred, label, **kwargs):
         """
@@ -97,6 +98,7 @@ class Tester():
         np.savetxt(self.save_folder / "jaccard_matrix.txt", j_mat, fmt='%-.2f')
         np.savetxt(self.save_folder / "jaccard_each_seq.txt", Js, fmt='%-.2f')
         np.savetxt(self.save_folder / "jaccard_avg.txt", J[np.newaxis], fmt='%-.2f')
+        return J
 
     def _confusion_matrix(self, result_list):
         pred_T = [np.argmax(seq_res["pred"], axis=-1) for seq_res in result_list]  # Shape: (seqs, T)
@@ -117,4 +119,4 @@ if __name__ == '__main__':
     val_cfg = get_cfg_defaults()
     val_cfg.merge_from_file(config_path)
     log.setLevel(logging.INFO)
-    Tester.from_config(val_cfg).val()
+    Tester.from_config(val_cfg).test()
