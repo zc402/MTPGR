@@ -158,11 +158,11 @@ if __name__ == "__main__":
     plt.rcParams.update({'font.size':16})
 
     cfg = get_cfg_defaults()
-    cfg.merge_from_file('configs/no_camera.yaml')
+    # cfg.merge_from_file('configs/no_camera.yaml')
 
     result_path = Path('output', cfg.MODEL.NAME, 'result.pkl')
     anime_save_folder = Path('output', cfg.MODEL.NAME, 'anime')
-    anime_save_folder.mkdir(exist_ok=True)
+    anime_save_folder.mkdir(exist_ok=True, parents=True)
 
     with result_path.open('rb') as f:
         result = pickle.load(f)

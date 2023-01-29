@@ -1,6 +1,8 @@
 from typing import List, Tuple
 from vibe.models.smpl import JOINT_NAMES
 from mtpgr.utils.log import log
+import numpy as np
+import torch
 
 # Connection: pelvis, spine, spine
 
@@ -90,6 +92,54 @@ J3D_EDGES = [
         ('OP LKnee', 'OP LAnkle'),
     ]
 
+# By the order of J3D_EDGES
+BONE = ['B RShoulder', 'B LShoulder', 'B RElbow', 'B LElbow', 'B RWrist', 'B LWrist', 
+        'B Nose', 'B Neck', 'B Spine (H36M)', 'B Pelvis (MPII)', 'B MidHip',
+        'B RHip', 'B LHip', 'B RKnee', 'B LKnee', 'B RAnkle', 'B LAnkle']
+
+BONE_HEIGHT = {
+    'B RAnkle': 0,
+    'B LAnkle': 0,
+    'B RKnee': 1,
+    'B LKnee': 1,
+    'B RHip': 2,
+    'B LHip': 2,
+    'B MidHip': 3, 'B Pelvis (MPII)': 4, 'B Spine (H36M)': 5, 'B Thorax (MPII)': 6,
+    'B RWrist': 7,
+    'B LWrist': 7,
+    'B RElbow': 8,
+    'B LElbow': 8,
+    'B RShoulder': 9,
+    'B LShoulder': 9,
+    'B Neck': 10,
+    'B Nose': 11,
+}
+
+BONE_EDGES = [
+        ('B Neck', 'B RShoulder'),  # 右肩
+        ('B Neck', 'B LShoulder'),  # 左肩
+
+        ('B RShoulder', 'B RElbow'),  # 右大臂
+        ('B LShoulder', 'B LElbow'),  # 左大臂
+
+        ('B RElbow', 'B RWrist'),  # 右小臂
+        ('B LElbow', 'B LWrist'),  # 左小臂
+
+        ('B Nose', 'B Neck'),  # 头
+
+        ('B Pelvis (MPII)', 'B Spine (H36M)'),
+        ('B MidHip', 'B Pelvis (MPII)'),  # 为了演示SCPS的缺点，加入一些模拟SMPL脊椎点的点
+
+        ('B MidHip', 'B RHip'),  # 右跨
+        ('B MidHip', 'B LHip'),  # 左跨
+
+        ('B RHip', 'B RKnee'),  # 大腿
+        ('B LHip', 'B LKnee'),
+
+        ('B RKnee', 'B RAnkle'),  # 小腿
+        ('B LKnee', 'B LAnkle'),
+    ]
+
 # Pose: theta, SMPL Joint rotations.
 POSE_IN_USE = ['L_Ankle', 'R_Ankle', 
 'L_Knee', 'R_Knee', 
@@ -135,58 +185,65 @@ CUSTOM_IN_USE = ['Pelvis']  # From SMPL POSE
 
 CUSTOM_HEIGHT = {'Pelvis': 100}  # Root rotation, connects to joints.
 
-CUSTOM_EDGES = [(joint, 'Pelvis') for joint in J3D_IN_USE]  # Connect each joints(J3D) to pelvis(theta)
+EDGES_P_C = [(joint, 'Pelvis') for joint in J3D_IN_USE]  # Connect each joints(J3D) to pelvis(theta)
+EDGES_P_R = [('OP RAnkle','R_Ankle'), ('OP LAnkle', 'L_Ankle'), ('OP RKnee', 'R_Knee'), ('OP LKnee', 'L_Knee'), ('OP RHip', 'R_Hip'), ('OP LHip', 'L_Hip'),
+('OP RWrist','R_Wrist'), ('OP LWrist','L_Wrist'), ('OP RElbow', 'R_Elbow'), ('OP LElbow', 'L_Elbow'),
+('OP RShoulder', 'R_Shoulder'), ('OP LShoulder', 'L_Shoulder'), ('OP Neck', 'Neck'), ('OP Nose', 'Head')]
+EDGES_P_B = [
+    ('OP RShoulder', 'B RShoulder'), 
+    ('OP LShoulder', 'B LShoulder'), 
+    ('OP RElbow', 'B RElbow'), 
+    ('OP LElbow', 'B LElbow'), 
+    ('OP RWrist', 'B RWrist'), 
+    ('OP LWrist', 'B LWrist'), 
+    ('OP Nose', 'B Nose'), 
+    ('OP Neck', 'B Neck'), 
+    ('Spine (H36M)', 'B Spine (H36M)'), 
+    ('Pelvis (MPII)', 'B Pelvis (MPII)'), 
+    ('OP MidHip', 'B MidHip'),
+    ('OP RHip', 'B RHip'), 
+    ('OP LHip', 'B LHip'), 
+    ('OP RKnee', 'B RKnee'), 
+    ('OP LKnee', 'B LKnee'), 
+    ('OP RAnkle', 'B RAnkle'), 
+    ('OP LAnkle', 'B LAnkle')]
 
-class Parts:
+
+class PartsV2:
     def __init__(self, graph='CPR'):
-        # self.use_cam_pose = use_cam_pose
-        # self.use_rotations = use_rotations
         self.graph = graph
         self.part_names: List[str] = []  # All part names. Shape:(V,)
         self.heights: List[int] = []  # Heights. Same order with part_names. Shape:(V,)
         self.edges: List[Tuple(str, str)] = []  # Edges. Shape:(E, 2)
 
-        if graph == 'P':
+        if 'P' in graph:
             self.part_names.extend(J3D_IN_USE)
             self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
             self.edges.extend(J3D_EDGES)
+
+        if 'R' in graph:
+            self.part_names.extend(POSE_IN_USE)
+            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
+            self.edges.extend(POSE_INTERNAL_EDGES)
         
-        elif graph == 'R':
-            self.part_names.extend(POSE_IN_USE)
-            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
-            self.edges.extend(POSE_INTERNAL_EDGES)
-
-        elif graph == 'PR':
-            self.part_names.extend(J3D_IN_USE)
-            self.part_names.extend(POSE_IN_USE)
-            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
-            self.edges.extend(J3D_EDGES)
-            self.edges.extend(POSE_J3D_EDGES)
-            self.edges.extend(POSE_INTERNAL_EDGES)
-
-        elif graph == 'CP':
-            self.part_names.extend(J3D_IN_USE)
+        if 'C' in graph:
             self.part_names.extend(CUSTOM_IN_USE)
-            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
-            self.edges.extend(J3D_EDGES)
-            self.edges.extend(CUSTOM_EDGES)
-
-        elif graph == 'CPR':
-            self.part_names.extend(J3D_IN_USE)  # J3D, if available, always at the 1st position.
-            self.part_names.extend(POSE_IN_USE)
-            self.part_names.extend(CUSTOM_IN_USE)
-            
-
-            self.heights.extend([J3D_HEIGHTS[name] for name in J3D_IN_USE])
-            self.heights.extend([POSE_HEIGHT[name] for name in POSE_IN_USE])
             self.heights.extend([CUSTOM_HEIGHT[name] for name in CUSTOM_IN_USE])
 
-            self.edges.extend(J3D_EDGES)
-            self.edges.extend(POSE_INTERNAL_EDGES)
-            self.edges.extend(POSE_J3D_EDGES)
-            self.edges.extend(CUSTOM_EDGES)
+        if 'B' in graph:
+            self.part_names.extend(BONE)
+            self.heights.extend([BONE_HEIGHT[name] for name in BONE])
+            self.edges.extend(BONE_EDGES)
+            pass
+
+        if 'P' in graph and 'C' in graph:
+            self.edges.extend(EDGES_P_C)
+        
+        if 'P' in graph and 'R' in graph:
+            self.edges.extend(EDGES_P_R)
+        
+        if 'P' in graph and 'B' in graph:
+            self.edges.extend(EDGES_P_B)
 
     def get_edge_indices(self) -> List[Tuple[int, int]]:
         edge_indices = []
@@ -208,54 +265,10 @@ class Parts:
         # Return: list of hight numbers
         return self.heights
     
-    def get_features(self, VIBE_j3D=None, VIBE_j2D=None, SMPL_pose=None) -> List[float]:
-        features = []
-        vibe_j3D_indices = [VIBE_J3D_NAME_TO_IDX[name] for name in J3D_IN_USE]
-        j3D_values = VIBE_j3D[vibe_j3D_indices]
-
-        custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        custom_values = SMPL_pose[custom_smpl_pose_indices]
-
-        pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
-        pose_values = SMPL_pose[pose_in_use_indices]
-
-        if self.graph == 'P':
-            features.extend(j3D_values)
-        elif self.graph == 'R':
-            features.extend(pose_values)
-        elif self.graph == 'PR':
-            features.extend(j3D_values)
-            features.extend(pose_values)
-        elif self.graph == 'CP':
-            features.extend(j3D_values)
-            features.extend(custom_values)
-        elif self.graph == 'CPR':
-            features.extend(j3D_values)  # Same order with part_names
-            features.extend(pose_values)
-            features.extend(custom_values)
-
-        # if self.use_rotations:
-        #     # Read pelvis root rotation
-        #     custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        #     custom_values = SMPL_pose[custom_smpl_pose_indices]
-        #     features.extend(custom_values)
-
-        #     # Read part rotations (no root)
-        #     pose_in_use_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in POSE_IN_USE]
-        #     pose_values = SMPL_pose[pose_in_use_indices]
-        #     features.extend(pose_values)
-
-        # elif self.use_cam_pose:
-        #     custom_smpl_pose_indices = [SMPL_POSE_NAME_TO_IDX[name] for name in CUSTOM_IN_USE]
-        #     custom_values = SMPL_pose[custom_smpl_pose_indices]
-        #     features.extend(custom_values)
-        # else:
-        #     pass  # skeleton only
-        return features
     
     @classmethod
     def from_config(cls, cfg):
-        return Parts(graph=cfg.MODEL.GRAPH)
+        return PartsV2(graph=cfg.MODEL.GRAPH)
 
     @staticmethod
     def filter_P(joints3d):
@@ -279,4 +292,26 @@ class Parts:
 
     @staticmethod
     def filter_B(joints3d):
-        pass
+        vec_list = []
+        for p1_name, p2_name in J3D_EDGES:
+            p1_idx, p2_idx = [VIBE_J3D_NAME_TO_IDX[name] for name in (p1_name, p2_name)]
+            p1_val, p2_val = joints3d[p1_idx], joints3d[p2_idx]
+            vec = p2_val - p1_val
+            vec_list.append(vec)
+        vec_arr = np.stack(vec_list)
+
+        return vec_arr
+
+    def aggregate_features(self, Vp, Vr, Vc, Vb):
+        # Vp shape: N,T,V,C
+        features = []
+        if 'P' in self.graph:
+            features.append(Vp)
+        if 'R' in self.graph:
+            features.append(Vr)
+        if 'C' in self.graph:
+            features.append(Vc)
+        if 'B' in self.graph:
+            features.append(Vb)
+        concat_V = torch.concat(features, dim=2)
+        return concat_V

@@ -6,3 +6,4 @@ output/
 *.m4v
 target/
 .ipynb_checkpoints
+*.pkl
